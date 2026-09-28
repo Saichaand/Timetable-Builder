@@ -1,1178 +1,1409 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timetable Builder</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#FAF7F0;
-    --surface:#FFFFFF;
-    --ink-dark:#1F3A34;
-    --ink-dark-2:#28453E;
-    --ink:#242E2B;
-    --muted:#5C6B66;
-    --muted-2:#8B968F;
-    --accent:#E8B23D;
-    --accent-ink:#1F3A34;
-    --warn:#B5533C;
-    --warn-bg:#FBEAE4;
-    --border:#DED7C7;
-    --border-2:#EDE8DA;
-    --free:#EEF2ED;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--bg);
-    color:var(--ink);
-    font-family:'IBM Plex Sans',sans-serif;
-    font-size:14px;
-    line-height:1.5;
-  }
-  h1,h2,h3,.display{
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:600;
-    color:var(--ink-dark);
-    margin:0;
-  }
-  button{font-family:inherit;cursor:pointer;}
-  input,select{font-family:inherit;font-size:14px;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timetable Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAF7F0;
+      --surface: #FFFFFF;
+      --ink-dark: #1F3A34;
+      --ink-dark-2: #28453E;
+      --ink: #242E2B;
+      --muted: #5C6B66;
+      --muted-2: #8B968F;
+      --accent: #E8B23D;
+      --accent-ink: #1F3A34;
+      --warn: #B5533C;
+      --warn-bg: #FBEAE4;
+      --border: #DED7C7;
+      --border-2: #EDE8DA;
+      --free: #EEF2ED;
+    }
 
-  .app-shell{display:flex;min-height:100vh;}
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
 
-  .sidebar{
-    width:250px;flex-shrink:0;
-    background:var(--ink-dark);
-    color:#F2EFE6;
-    padding:28px 20px;
-    display:flex;flex-direction:column;
-    gap:28px;
-  }
-  .brand{display:flex;flex-direction:column;gap:2px;}
-  .brand .mark{
-    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#F2EFE6;
-  }
-  .brand .sub{font-size:12px;color:#9FB0A9;}
-  .steps{display:flex;flex-direction:column;position:relative;}
-  .step{
-    display:flex;align-items:flex-start;gap:12px;
-    padding:12px 8px;border-radius:6px;cursor:pointer;
-    position:relative;
-  }
-  .step:hover{background:rgba(255,255,255,0.05);}
-  .step.active{background:rgba(232,178,61,0.14);}
-  .step .num{
-    width:24px;height:24px;border-radius:50%;
-    border:1.5px solid #5A7069;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'IBM Plex Mono',monospace;font-size:11px;
-    color:#CBD6D1;flex-shrink:0;margin-top:1px;
-  }
-  .step.active .num{border-color:var(--accent);color:var(--accent);}
-  .step.filled .num{background:#365149;border-color:#5A7069;}
-  .step.active.filled .num{background:var(--accent);color:var(--ink-dark);border-color:var(--accent);}
-  .step .label{display:flex;flex-direction:column;}
-  .step .title{font-size:13.5px;font-weight:500;color:#F2EFE6;}
-  .step .desc{font-size:11.5px;color:#8FA098;margin-top:1px;}
-  .step:not(:last-child)::after{
-    content:'';position:absolute;left:19.5px;top:38px;bottom:-2px;
-    width:1px;background:#3C5850;
-  }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-  .sidebar-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;}
-  .save-indicator{font-size:11px;color:#7E958D;font-family:'IBM Plex Mono',monospace;min-height:14px;}
-  .ghost-btn{
-    background:transparent;border:1px solid #3C5850;color:#B9C7C1;
-    padding:8px 10px;border-radius:6px;font-size:12.5px;text-align:left;
-  }
-  .ghost-btn:hover{border-color:var(--warn);color:#F0B7A5;}
+    h1, h2, h3, .display {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      color: var(--ink-dark);
+      margin: 0;
+    }
 
-  .main{flex:1;padding:36px 44px;max-width:1180px;}
-  .main-head{margin-bottom:24px;}
-  .main-head h1{font-size:22px;margin-bottom:4px;}
-  .main-head p{color:var(--muted);font-size:13.5px;max-width:640px;}
+    button { font-family: inherit; cursor: pointer; }
+    input, select { font-family: inherit; font-size: 14px; }
 
-  .panel{
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:8px;padding:22px 24px;margin-bottom:18px;
-  }
-  .panel h3{font-size:14.5px;margin-bottom:14px;letter-spacing:0.2px;}
-  .panel h3 .count{color:var(--muted-2);font-weight:400;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+    .app-shell { display: flex; min-height: 100vh; }
 
-  .field-row{display:flex;gap:10px;margin-bottom:10px;align-items:center;flex-wrap:wrap;}
-  .field{display:flex;flex-direction:column;gap:4px;}
-  .field label{font-size:11.5px;color:var(--muted);}
-  input[type=text],input[type=number],input[type=time],select{
-    border:1px solid var(--border);border-radius:5px;padding:7px 9px;
-    background:#fff;color:var(--ink);min-width:0;
-  }
-  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent);}
+    .sidebar {
+      width: 250px;
+      flex-shrink: 0;
+      background: var(--ink-dark);
+      color: #F2EFE6;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
 
-  .day-toggles{display:flex;gap:8px;flex-wrap:wrap;}
+    .brand { display: flex; flex-direction: column; gap: 2px; }
+    .brand .mark { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: #F2EFE6; }
+    .brand .sub { font-size: 12px; color: #9FB0A9; }
 
-  table.editor{width:100%;border-collapse:collapse;margin-top:4px;}
-  table.editor th{
-    text-align:left;font-size:11px;color:var(--muted);font-weight:500;
-    padding:6px 8px;border-bottom:1px solid var(--border);
-  }
-  table.editor td{padding:5px 8px;border-bottom:1px solid var(--border-2);vertical-align:middle;}
-  table.editor input,table.editor select{width:100%;}
-  .row-del{
-    background:none;border:none;color:var(--muted-2);font-size:16px;padding:2px 6px;border-radius:4px;
-  }
-  .row-del:hover{color:var(--warn);background:var(--warn-bg);}
+    .steps { display: flex; flex-direction: column; position: relative; }
 
-  .add-row-btn{
-    margin-top:10px;background:none;border:1px dashed var(--border);color:var(--ink-dark);
-    padding:8px 12px;border-radius:6px;font-size:13px;font-weight:500;
-  }
-  .add-row-btn:hover{border-color:var(--ink-dark);background:var(--free);}
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+    }
+    .step:hover { background: rgba(255, 255, 255, 0.05); }
+    .step.active { background: rgba(232, 178, 61, 0.14); }
 
-  .primary-btn{
-    background:var(--accent);color:var(--accent-ink);border:none;
-    padding:11px 20px;border-radius:6px;font-weight:600;font-size:14px;
-  }
-  .primary-btn:hover{filter:brightness(0.95);}
-  .primary-btn:disabled{opacity:0.5;cursor:not-allowed;}
-  .secondary-btn{
-    background:#fff;color:var(--ink-dark);border:1px solid var(--border);
-    padding:9px 16px;border-radius:6px;font-weight:500;font-size:13.5px;
-  }
-  .secondary-btn:hover{border-color:var(--ink-dark);}
+    .step .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid #5A7069;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #CBD6D1;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step.active .num { border-color: var(--accent); color: var(--accent); }
+    .step.filled .num { background: #365149; border-color: #5A7069; }
+    .step.active.filled .num { background: var(--accent); color: var(--ink-dark); border-color: var(--accent); }
 
-  .nav-actions{display:flex;justify-content:space-between;margin-top:22px;}
+    .step .label { display: flex; flex-direction: column; }
+    .step .title { font-size: 13.5px; font-weight: 500; color: #F2EFE6; }
+    .step .desc { font-size: 11.5px; color: #8FA098; margin-top: 1px; }
 
-  .hint{font-size:12px;color:var(--muted-2);margin-top:8px;}
-  .error-box{
-    background:var(--warn-bg);border:1px solid #E3B4A4;color:#8A3A26;
-    padding:12px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;
-  }
-  .error-box b{display:block;margin-bottom:4px;}
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19.5px;
+      top: 38px;
+      bottom: -2px;
+      width: 1px;
+      background: #3C5850;
+    }
 
-  .empty-state{
-    border:1px dashed var(--border);border-radius:8px;padding:30px;
-    text-align:center;color:var(--muted);font-size:13.5px;
-  }
+    .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+    .save-indicator { font-size: 11px; color: #7E958D; font-family: 'IBM Plex Mono', monospace; min-height: 14px; }
 
-  .tabbar{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;flex-wrap:wrap;}
-  .tab{
-    padding:9px 14px;font-size:13px;font-weight:500;color:var(--muted);
-    border-bottom:2px solid transparent;cursor:pointer;
-  }
-  .tab.active{color:var(--ink-dark);border-bottom-color:var(--accent);}
-  .tab .warn-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warn);margin-left:6px;}
+    .ghost-btn {
+      background: transparent;
+      border: 1px solid #3C5850;
+      color: #B9C7C1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      text-align: left;
+    }
+    .ghost-btn:hover { border-color: var(--warn); color: #F0B7A5; }
 
-  .grid-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .grid-toolbar h2{font-size:17px;}
+    .main { flex: 1; padding: 36px 44px; max-width: 1180px; }
+    .main-head { margin-bottom: 24px; }
+    .main-head h1 { font-size: 22px; margin-bottom: 4px; }
+    .main-head p { color: var(--muted); font-size: 13.5px; max-width: 640px; }
 
-  table.tt-grid{width:100%;border-collapse:collapse;background:#fff;}
-  table.tt-grid th{
-    font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:600;
-    color:var(--ink-dark);background:var(--free);padding:9px 8px;
-    border:1px solid var(--border);text-align:center;
-  }
-  table.tt-grid td.period-label{
-    background:var(--free);border:1px solid var(--border);padding:8px;
-    font-size:11.5px;color:var(--muted);width:90px;font-family:'IBM Plex Mono',monospace;
-    vertical-align:top;
-  }
-  table.tt-grid td.period-label b{display:block;color:var(--ink-dark);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;font-weight:600;}
-  table.tt-grid td.cell{
-    border:1px solid var(--border);padding:0;height:56px;min-width:110px;
-    vertical-align:top;position:relative;
-  }
-  .cell-inner{
-    height:100%;padding:7px 9px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:1px;
-  }
-  .cell-inner:hover{background:var(--free);}
-  .cell-inner .subj{font-size:13px;font-weight:600;color:var(--ink);}
-  .cell-inner .teach{font-size:11px;color:var(--muted);}
-  .cell-inner .room{font-size:10.5px;color:var(--muted-2);}
-  .cell-inner.free{color:var(--muted-2);font-style:italic;font-size:12px;}
-  .cell-inner.locked{background:#F1EEE3;color:var(--muted);font-size:12px;align-items:center;text-align:center;cursor:default;}
-  .cell-inner.break{background:repeating-linear-gradient(135deg,#F1EEE3,#F1EEE3 6px,#EAE5D6 6px,#EAE5D6 12px);color:var(--muted);font-size:11.5px;align-items:center;text-align:center;cursor:default;font-weight:500;}
-  .cell-inner.conflict{background:var(--warn-bg);}
-  .cell-inner.conflict .subj{color:#8A3A26;}
-  .conflict-flag{position:absolute;top:3px;right:4px;color:var(--warn);font-size:11px;}
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+    .panel h3 { font-size: 14.5px; margin-bottom: 14px; letter-spacing: 0.2px; }
+    .panel h3 .count { color: var(--muted-2); font-weight: 400; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
 
-  select.cell-edit{width:100%;height:100%;border:2px solid var(--accent);border-radius:0;padding:6px;font-size:12.5px;}
+    .field-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 11.5px; color: var(--muted); }
 
-  .legend{display:flex;gap:16px;margin-top:14px;font-size:11.5px;color:var(--muted);flex-wrap:wrap;}
-  .legend span{display:inline-flex;align-items:center;gap:6px;}
-  .legend i{width:10px;height:10px;border-radius:2px;display:inline-block;}
+    input[type=text], input[type=number], input[type=time], select {
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 9px;
+      background: #fff;
+      color: var(--ink);
+      min-width: 0;
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 
-  .days-list{display:flex;flex-direction:column;gap:6px;}
-  .day-row-wrap{border:1px solid var(--border-2);border-radius:6px;padding:2px 6px;}
-  .day-row{display:flex;align-items:center;gap:12px;padding:6px 4px;}
-  .day-row input[type=checkbox]{width:16px;height:16px;}
-  .day-row .day-name{width:70px;font-size:13.5px;font-weight:500;color:var(--ink);}
-  .day-row input[type=number]{width:70px;}
-  .day-row .unit{font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.4px;}
-  .custom-toggle{margin-left:auto;background:none;border:none;color:var(--ink-dark);font-size:11.5px;text-decoration:underline;cursor:pointer;padding:4px 2px;}
-  .custom-toggle:disabled{color:var(--muted-2);cursor:default;text-decoration:none;}
-  .day-custom-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:0 4px 10px;padding:10px 8px 2px;border-top:1px dashed var(--border);}
+    .day-toggles { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  .struct-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;max-width:640px;}
+    table.editor { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    table.editor th {
+      text-align: left;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    table.editor td { padding: 5px 8px; border-bottom: 1px solid var(--border-2); vertical-align: middle; }
+    table.editor input, table.editor select { width: 100%; }
 
-  .block-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
-  .block-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;}
-  .block-row.dragging{opacity:0.4;}
-  .block-row .handle{cursor:grab;color:var(--muted-2);font-size:15px;user-select:none;}
-  .block-row input[type=text]{flex:1;min-width:100px;}
-  .block-row input[type=number]{width:70px;}
-  .block-row .time-preview{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);min-width:104px;text-align:right;}
-  .block-row .type-tag{font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;padding:2px 7px;border-radius:10px;background:var(--free);color:var(--muted);white-space:nowrap;}
-  .block-row .type-tag.break-tag{background:#F1E6D2;color:#8A6A2A;}
-  .block-row .order-btns{display:flex;flex-direction:column;gap:1px;}
-  .order-btns button{background:none;border:none;color:var(--muted-2);font-size:11px;padding:0 4px;line-height:1.3;}
-  .order-btns button:hover{color:var(--ink-dark);}
-  .lunch-preview-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px dashed var(--border);border-radius:6px;background:var(--free);font-size:12.5px;color:var(--muted);}
-  .lunch-preview-row b{color:var(--ink-dark);}
+    .row-del { background: none; border: none; color: var(--muted-2); font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+    .row-del:hover { color: var(--warn); background: var(--warn-bg); }
 
-  table.busy-grid{border-collapse:collapse;margin-top:10px;}
-  table.busy-grid th{font-size:11px;color:var(--muted);padding:5px 4px;font-weight:500;}
-  table.busy-grid td{padding:0;border:1px solid var(--border-2);}
-  table.busy-grid .period-tag{font-size:10.5px;color:var(--muted);padding:4px 8px;font-family:'IBM Plex Mono',monospace;}
-  .busy-cell{width:38px;height:26px;cursor:pointer;background:#fff;}
-  .busy-cell.busy{background:var(--warn);}
-  .busy-cell.disabled{background:var(--border-2);cursor:default;}
+    .add-row-btn {
+      margin-top: 10px;
+      background: none;
+      border: 1px dashed var(--border);
+      color: var(--ink-dark);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .add-row-btn:hover { border-color: var(--ink-dark); background: var(--free); }
 
-  @media print{
-    .sidebar,.grid-toolbar button,.tabbar,.main-head,.legend{display:none !important;}
-    .main{padding:0;max-width:100%;}
-    .panel{border:none;padding:0;}
-  }
+    .primary-btn {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: none;
+      padding: 11px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .primary-btn:hover { filter: brightness(0.95); }
+    .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  @media (max-width: 860px){
-    .app-shell{flex-direction:column;}
-    .sidebar{width:100%;flex-direction:row;overflow-x:auto;align-items:center;padding:16px;}
-    .steps{flex-direction:row;}
-    .step:not(:last-child)::after{display:none;}
-    .sidebar-foot{display:none;}
-    .main{padding:22px 18px;}
-  }
-</style>
+    .secondary-btn {
+      background: #fff;
+      color: var(--ink-dark);
+      border: 1px solid var(--border);
+      padding: 9px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 13.5px;
+    }
+    .secondary-btn:hover { border-color: var(--ink-dark); }
+
+    .nav-actions { display: flex; justify-content: space-between; margin-top: 22px; }
+    .hint { font-size: 12px; color: var(--muted-2); margin-top: 8px; }
+
+    .error-box {
+      background: var(--warn-bg);
+      border: 1px solid #E3B4A4;
+      color: #8A3A26;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .error-box b { display: block; margin-bottom: 4px; }
+
+    .empty-state {
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .tabbar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; flex-wrap: wrap; }
+    .tab {
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .tab.active { color: var(--ink-dark); border-bottom-color: var(--accent); }
+    .tab .warn-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); margin-left: 6px; }
+
+    .grid-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .grid-toolbar h2 { font-size: 17px; }
+
+    table.tt-grid { width: 100%; border-collapse: collapse; background: #fff; }
+    table.tt-grid th {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink-dark);
+      background: var(--free);
+      padding: 9px 8px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    table.tt-grid td.period-label {
+      background: var(--free);
+      border: 1px solid var(--border);
+      padding: 8px;
+      font-size: 11.5px;
+      color: var(--muted);
+      width: 90px;
+      font-family: 'IBM Plex Mono', monospace;
+      vertical-align: top;
+    }
+    table.tt-grid td.period-label b {
+      display: block;
+      color: var(--ink-dark);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    table.tt-grid td.cell {
+      border: 1px solid var(--border);
+      padding: 0;
+      height: 56px;
+      min-width: 110px;
+      vertical-align: top;
+      position: relative;
+    }
+
+    .cell-inner {
+      height: 100%;
+      padding: 7px 9px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+    }
+    .cell-inner:hover { background: var(--free); }
+    .cell-inner .subj { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .cell-inner .teach { font-size: 11px; color: var(--muted); }
+    .cell-inner .room { font-size: 10.5px; color: var(--muted-2); }
+    .cell-inner.free { color: var(--muted-2); font-style: italic; font-size: 12px; }
+    .cell-inner.lab { border-left: 3px solid var(--accent); }
+    .cell-inner.locked { background: #F1EEE3; color: var(--muted); font-size: 12px; align-items: center; text-align: center; cursor: default; }
+    .cell-inner.break {
+      background: repeating-linear-gradient(135deg, #F1EEE3, #F1EEE3 6px, #EAE5D6 6px, #EAE5D6 12px);
+      color: var(--muted);
+      font-size: 11.5px;
+      align-items: center;
+      text-align: center;
+      cursor: default;
+      font-weight: 500;
+    }
+    .cell-inner.conflict { background: var(--warn-bg); }
+    .cell-inner.conflict .subj { color: #8A3A26; }
+    .conflict-flag { position: absolute; top: 3px; right: 4px; color: var(--warn); font-size: 11px; }
+
+    select.cell-edit {
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--accent);
+      border-radius: 0;
+      padding: 6px;
+      font-size: 12.5px;
+    }
+
+    .legend { display: flex; gap: 16px; margin-top: 14px; font-size: 11.5px; color: var(--muted); flex-wrap: wrap; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+    .days-list { display: flex; flex-direction: column; gap: 6px; }
+    .day-row-wrap { border: 1px solid var(--border-2); border-radius: 6px; padding: 2px 6px; }
+    .day-row { display: flex; align-items: center; gap: 12px; padding: 6px 4px; }
+    .day-row input[type=checkbox] { width: 16px; height: 16px; }
+    .day-row .day-name { width: 70px; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+    .day-row input[type=number] { width: 70px; }
+    .day-row .unit { font-size: 11px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.4px; }
+
+    .custom-toggle {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--ink-dark);
+      font-size: 11.5px;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 4px 2px;
+    }
+    .custom-toggle:disabled { color: var(--muted-2); cursor: default; text-decoration: none; }
+
+    .day-custom-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 0 4px 10px;
+      padding: 10px 8px 2px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .struct-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; max-width: 640px; }
+
+    .block-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .block-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .block-row.dragging { opacity: 0.4; }
+    .block-row .handle { cursor: grab; color: var(--muted-2); font-size: 15px; user-select: none; }
+    .block-row input[type=text] { flex: 1; min-width: 100px; }
+    .block-row input[type=number] { width: 70px; }
+    .block-row .time-preview { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); min-width: 104px; text-align: right; }
+    .block-row .type-tag {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: var(--free);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .block-row .type-tag.break-tag { background: #F1E6D2; color: #8A6A2A; }
+    .block-row .order-btns { display: flex; flex-direction: column; gap: 1px; }
+    .order-btns button { background: none; border: none; color: var(--muted-2); font-size: 11px; padding: 0 4px; line-height: 1.3; }
+    .order-btns button:hover { color: var(--ink-dark); }
+
+    .lunch-preview-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      background: var(--free);
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .lunch-preview-row b { color: var(--ink-dark); }
+
+    table.busy-grid { border-collapse: collapse; margin-top: 10px; }
+    table.busy-grid th { font-size: 11px; color: var(--muted); padding: 5px 4px; font-weight: 500; }
+    table.busy-grid td { padding: 0; border: 1px solid var(--border-2); }
+    table.busy-grid .period-tag { font-size: 10.5px; color: var(--muted); padding: 4px 8px; font-family: 'IBM Plex Mono', monospace; }
+    .busy-cell { width: 38px; height: 26px; cursor: pointer; background: #fff; }
+    .busy-cell.busy { background: var(--warn); }
+    .busy-cell.disabled { background: var(--border-2); cursor: default; }
+
+    @media print {
+      .sidebar, .grid-toolbar button, .tabbar, .main-head, .legend { display: none !important; }
+      .main { padding: 0; max-width: 100%; }
+      .panel { border: none; padding: 0; }
+    }
+
+    @media (max-width: 860px) {
+      .app-shell { flex-direction: column; }
+      .sidebar { width: 100%; flex-direction: row; overflow-x: auto; align-items: center; padding: 16px; }
+      .steps { flex-direction: row; }
+      .step:not(:last-child)::after { display: none; }
+      .sidebar-foot { display: none; }
+      .main { padding: 22px 18px; }
+    }
+  </style>
 </head>
+
 <body>
-<div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="mark">Timetable Builder</div>
-      <div class="sub">Set it up once, generate every class at once</div>
-    </div>
-    <nav class="steps" id="steps"></nav>
-    <div class="sidebar-foot">
-      <div class="save-indicator" id="saveIndicator"></div>
-      <button class="ghost-btn" id="resetBtn">Clear all data</button>
-    </div>
-  </aside>
-  <main class="main" id="main"></main>
-</div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">Timetable Builder</div>
+        <div class="sub">Set it up once, generate every class at once</div>
+      </div>
+      <nav class="steps" id="steps"></nav>
+      <div class="sidebar-foot">
+        <div class="save-indicator" id="saveIndicator"></div>
+        <button class="ghost-btn" id="resetBtn">Clear all data</button>
+      </div>
+    </aside>
+    <main class="main" id="main"></main>
+  </div>
 
-<script>
-/* ---------------------------------------------------------------------
-   State
---------------------------------------------------------------------- */
-const STORAGE_KEY = 'timetable-builder-state-v1';
-const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const uid = () => Math.random().toString(36).slice(2,9);
-let dragBlockId = null;
+  <script>
+    /* ---------------------------------------------------------------------
+       State
+    --------------------------------------------------------------------- */
+    const STORAGE_KEY = 'timetable-builder-state-v1';
+    const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const uid = () => Math.random().toString(36).slice(2, 9);
+    let dragBlockId = null;
 
-function timeToMin(t){ const parts = (t||'09:00').split(':').map(Number); return parts[0]*60+parts[1]; }
-function minToTime(m){ m = ((m%1440)+1440)%1440; const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+    function timeToMin(t) { const parts = (t || '09:00').split(':').map(Number); return parts[0] * 60 + parts[1]; }
+    function minToTime(m) { m = ((m % 1440) + 1440) % 1440; const h = Math.floor(m / 60), mm = m % 60; return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0'); }
 
-function defaultState(){
-  return {
-    view: 'structure',
-    structure: {
-      startTime: '09:35',
-      periodLength: 50,
-      lunchStart: '13:10',
-      lunchEnd: '14:00',
-      template: [
-        {id:uid(), type:'class', label:'Period 1'},
-        {id:uid(), type:'class', label:'Period 2'},
-        {id:uid(), type:'class', label:'Period 3'},
-        {id:uid(), type:'class', label:'Period 4'},
-        {id:uid(), type:'break', label:'Break', duration:15},
-        {id:uid(), type:'class', label:'Period 5'},
-        {id:uid(), type:'class', label:'Period 6'},
-        {id:uid(), type:'class', label:'Period 7'},
-        {id:uid(), type:'class', label:'Period 8'},
-      ],
-      days: DAY_NAMES.map(n=>({name:n, enabled:['Mon','Tue','Wed','Thu','Fri'].includes(n), periodCount:8}))
-    },
-    teachers: [],
-    classes: [],
-    result: null,
-    resultTab: null
-  };
-}
+    function defaultState() {
+      return {
+        view: 'structure',
+        structure: {
+          startTime: '09:35',
+          periodLength: 50,
+          lunchStart: '13:10',
+          lunchEnd: '14:00',
+          template: [
+            { id: uid(), type: 'class', label: 'Period 1' },
+            { id: uid(), type: 'class', label: 'Period 2' },
+            { id: uid(), type: 'class', label: 'Period 3' },
+            { id: uid(), type: 'class', label: 'Period 4' },
+            { id: uid(), type: 'break', label: 'Break', duration: 15 },
+            { id: uid(), type: 'class', label: 'Period 5' },
+            { id: uid(), type: 'class', label: 'Period 6' },
+            { id: uid(), type: 'class', label: 'Period 7' },
+            { id: uid(), type: 'class', label: 'Period 8' },
+          ],
+          days: DAY_NAMES.map(n => ({ name: n, enabled: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(n), periodCount: 8 }))
+        },
+        teachers: [],
+        classes: [],
+        result: null,
+        resultTab: null
+      };
+    }
 
-let state = defaultState();
-let saveTimer = null;
+    let state = defaultState();
+    let saveTimer = null;
 
-async function loadState(){
-  try{
-    const res = await window.storage.get(STORAGE_KEY, false);
-    if(res && res.value){
-      const loaded = JSON.parse(res.value);
-      const fresh = defaultState();
-      const freshStructure = fresh.structure; // keep an untouched reference before Object.assign overwrites fresh.structure
-      const merged = Object.assign(fresh, loaded);
-      const legacyStructure = !loaded.structure || !Array.isArray(loaded.structure.template) || !loaded.structure.startTime || !Array.isArray(loaded.structure.days);
-      if(legacyStructure){
-        merged.structure = freshStructure;
-        merged.result = null;
-        merged.resultTab = null;
+    async function loadState() {
+      try {
+        const res = await window.storage.get(STORAGE_KEY, false);
+        if (res && res.value) {
+          const loaded = JSON.parse(res.value);
+          const fresh = defaultState();
+          const freshStructure = fresh.structure;
+          const merged = Object.assign(fresh, loaded);
+          const legacyStructure = !loaded.structure || !Array.isArray(loaded.structure.template) || !loaded.structure.startTime || !Array.isArray(loaded.structure.days);
+          if (legacyStructure) {
+            merged.structure = freshStructure;
+            merged.result = null;
+            merged.resultTab = null;
+          }
+          delete merged.locked;
+          (merged.teachers || []).forEach(t => { if (!t.busy) t.busy = {}; });
+          state = merged;
+        }
+      } catch (e) { /* no saved state yet */ }
+      render();
+    }
+
+    function scheduleSave() {
+      const ind = document.getElementById('saveIndicator');
+      if (ind) ind.textContent = 'Saving...';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
+        try {
+          await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+          if (ind) ind.textContent = 'Saved';
+          setTimeout(() => { if (ind && ind.textContent === 'Saved') ind.textContent = ''; }, 1500);
+        } catch (e) {
+          if (ind) ind.textContent = 'Could not save';
+        }
+      }, 500);
+    }
+
+    /* ---------------------------------------------------------------------
+       Structure helpers
+    --------------------------------------------------------------------- */
+    function classBlocksInOrder() { return state.structure.template.filter(b => b.type === 'class'); }
+    function totalClassCount() { return classBlocksInOrder().length; }
+    function enabledDays() { return state.structure.days.filter(d => d.enabled); }
+    function teacherById(id) { return state.teachers.find(t => t.id === id); }
+    function classById(id) { return state.classes.find(c => c.id === id); }
+
+    function computeDayLayout(day) {
+      const s = state.structure;
+      const custom = !!day.customHours;
+      const startTime = custom && day.startTime ? day.startTime : s.startTime;
+      const periodLength = custom && day.periodLength ? day.periodLength : s.periodLength;
+      const lunchStart = custom && day.lunchStart ? day.lunchStart : s.lunchStart;
+      const lunchEnd = custom && day.lunchEnd ? day.lunchEnd : s.lunchEnd;
+      const lunchStartMin = timeToMin(lunchStart);
+      const lunchEndMin = timeToMin(lunchEnd);
+      const lunchDur = Math.max(0, lunchEndMin - lunchStartMin);
+      let t = timeToMin(startTime);
+      let classSeen = 0;
+      let lunchDone = false;
+      const out = [];
+      for (const b of s.template) {
+        if (classSeen >= day.periodCount) break;
+        if (!lunchDone && lunchDur > 0 && t >= lunchStartMin) {
+          out.push({ id: 'lunch', type: 'lunch', label: 'Lunch', start: minToTime(t), end: minToTime(t + lunchDur) });
+          t += lunchDur; lunchDone = true;
+        }
+        const dur = b.type === 'class' ? periodLength : (parseInt(b.duration) || 10);
+        out.push({ id: b.id, type: b.type, label: b.label, start: minToTime(t), end: minToTime(t + dur) });
+        t += dur;
+        if (b.type === 'class') classSeen++;
       }
-      delete merged.locked;
-      (merged.teachers||[]).forEach(t=>{ if(!t.busy) t.busy = {}; });
-      state = merged;
+      return out;
     }
-  }catch(e){ /* no saved state yet */ }
-  render();
-}
-
-function scheduleSave(){
-  const ind = document.getElementById('saveIndicator');
-  if(ind) ind.textContent = 'Saving…';
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async ()=>{
-    try{
-      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
-      if(ind) ind.textContent = 'Saved';
-      setTimeout(()=>{ if(ind && ind.textContent==='Saved') ind.textContent=''; }, 1500);
-    }catch(e){
-      if(ind) ind.textContent = 'Could not save';
-    }
-  }, 500);
-}
-
-/* ---------------------------------------------------------------------
-   Structure helpers
---------------------------------------------------------------------- */
-function classBlocksInOrder(){ return state.structure.template.filter(b=>b.type==='class'); }
-function totalClassCount(){ return classBlocksInOrder().length; }
-function enabledDays(){ return state.structure.days.filter(d=>d.enabled); }
-function teacherById(id){ return state.teachers.find(t=>t.id===id); }
-function classById(id){ return state.classes.find(c=>c.id===id); }
-
-function computeDayLayout(day){
-  const s = state.structure;
-  const custom = !!day.customHours;
-  const startTime = custom && day.startTime ? day.startTime : s.startTime;
-  const periodLength = custom && day.periodLength ? day.periodLength : s.periodLength;
-  const lunchStart = custom && day.lunchStart ? day.lunchStart : s.lunchStart;
-  const lunchEnd = custom && day.lunchEnd ? day.lunchEnd : s.lunchEnd;
-  const lunchStartMin = timeToMin(lunchStart);
-  const lunchEndMin = timeToMin(lunchEnd);
-  const lunchDur = Math.max(0, lunchEndMin - lunchStartMin);
-  let t = timeToMin(startTime);
-  let classSeen = 0;
-  let lunchDone = false;
-  const out = [];
-  for(const b of s.template){
-    if(classSeen >= day.periodCount) break;
-    if(!lunchDone && lunchDur>0 && t>=lunchStartMin){
-      out.push({id:'lunch', type:'lunch', label:'Lunch', start:minToTime(t), end:minToTime(t+lunchDur)});
-      t += lunchDur; lunchDone = true;
-    }
-    const dur = b.type==='class' ? periodLength : (parseInt(b.duration)||10);
-    out.push({id:b.id, type:b.type, label:b.label, start:minToTime(t), end:minToTime(t+dur)});
-    t += dur;
-    if(b.type==='class') classSeen++;
-  }
-  return out;
-}
-function unionLayout(){ return computeDayLayout({periodCount: totalClassCount()}); }
-function dayLayoutMapFor(day){
-  const map = {};
-  computeDayLayout(day).forEach(b=> map[b.id]=b);
-  return map;
-}
-
-/* ---------------------------------------------------------------------
-   Solver
---------------------------------------------------------------------- */
-function generateTimetable(){
-  const days = enabledDays();
-  const totalBlocks = classBlocksInOrder();
-  const classes = state.classes;
-
-  if(classes.length===0) return {success:false, errors:['Add at least one class first.']};
-  if(days.length===0) return {success:false, errors:['Enable at least one working day in Schedule structure.']};
-  if(totalBlocks.length===0) return {success:false, errors:['Add at least one class period in Schedule structure.']};
-
-  const availableSlotsTotal = days.reduce((sum,d)=> sum + Math.min(d.periodCount, totalBlocks.length), 0);
-  const errors = [];
-  classes.forEach(c=>{
-    const needed = c.subjects.reduce((s,su)=> s + (parseInt(su.periodsPerWeek)||0), 0);
-    if(needed > availableSlotsTotal) errors.push(`"${c.name||'Untitled class'}" needs ${needed} periods/week but the week only has ${availableSlotsTotal} class periods. Reduce periods/week or add more periods.`);
-  });
-  if(errors.length) return {success:false, errors};
-
-  const FREE_ID = '__free__';
-  const workingClasses = classes.map(c=>{
-    const needed = c.subjects.reduce((s,su)=> s + (parseInt(su.periodsPerWeek)||0), 0);
-    const fillerCount = availableSlotsTotal - needed;
-    const subs = c.subjects.map(s=>({...s, periodsPerWeek: parseInt(s.periodsPerWeek)||0}));
-    if(fillerCount > 0) subs.push({id:FREE_ID, name:'Free Period', teacherId:null, room:'', periodsPerWeek:fillerCount});
-    return {...c, subjects: subs};
-  });
-
-  function dayClassBlocks(d){ return totalBlocks.slice(0, Math.min(d.periodCount, totalBlocks.length)); }
-
-  const baseVars = [];
-  days.forEach(d=> dayClassBlocks(d).forEach(blk=>{
-    workingClasses.forEach(c=> baseVars.push({classId:c.id, day:d.name, blockId:blk.id}));
-  }));
-
-  function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-  function emptyDayMap(){ const m={}; days.forEach(d=>{ m[d.name]={}; }); return m; }
-
-  const maxPerDayMap = {};
-  state.teachers.forEach(t=>{ maxPerDayMap[t.id] = t.maxPerDay ? parseInt(t.maxPerDay) : null; });
-
-  function baseBusy(){
-    const teacherBusy = {};
-    state.teachers.forEach(t=>{
-      teacherBusy[t.id] = emptyDayMap();
-      if(t.busy){
-        Object.entries(t.busy).forEach(([dayName, blocks])=>{
-          Object.keys(blocks).forEach(blockId=>{ if(blocks[blockId]) teacherBusy[t.id][dayName][blockId]='manual'; });
-        });
-      }
-    });
-    const roomBusy = {};
-    return {teacherBusy, roomBusy};
-  }
-  function baseGrid(){
-    const grid = {};
-    workingClasses.forEach(c=>{
-      grid[c.id] = {};
-      days.forEach(d=>{ grid[c.id][d.name] = {}; dayClassBlocks(d).forEach(blk=> grid[c.id][d.name][blk.id]=null); });
-    });
-    return grid;
-  }
-
-  const NODE_LIMIT = 60000, MAX_ATTEMPTS = 40;
-  let solved = false, finalGrid = null;
-
-  for(let attempt=0; attempt<MAX_ATTEMPTS && !solved; attempt++){
-    const {teacherBusy, roomBusy} = baseBusy();
-    const remaining = {}, dayCount = {}, teacherDayCount = {};
-    workingClasses.forEach(c=>{
-      remaining[c.id]={}; dayCount[c.id]={};
-      c.subjects.forEach(s=>{ remaining[c.id][s.id]=s.periodsPerWeek; dayCount[c.id][s.id]={}; days.forEach(d=>dayCount[c.id][s.id][d.name]=0); });
-    });
-    state.teachers.forEach(t=>{ teacherDayCount[t.id]={}; days.forEach(d=>teacherDayCount[t.id][d.name]=0); });
-    const grid = baseGrid();
-
-    const vars = []; let i=0;
-    while(i<baseVars.length){
-      let j=i; while(j<baseVars.length && baseVars[j].day===baseVars[i].day && baseVars[j].blockId===baseVars[i].blockId) j++;
-      vars.push(...shuffle(baseVars.slice(i,j))); i=j;
+    function unionLayout() { return computeDayLayout({ periodCount: totalClassCount() }); }
+    function dayLayoutMapFor(day) {
+      const map = {};
+      computeDayLayout(day).forEach(b => map[b.id] = b);
+      return map;
     }
 
-    let nodeCounter = 0;
-    function tryAssign(idx){
-      nodeCounter++;
-      if(nodeCounter>NODE_LIMIT) return false;
-      if(idx===vars.length) return true;
-      const v = vars[idx];
-      const cls = workingClasses.find(c=>c.id===v.classId);
-      let candidates = cls.subjects.filter(s=>remaining[v.classId][s.id]>0);
-      candidates = shuffle(candidates);
-      candidates.sort((a,b)=>{
-        const aToday = dayCount[v.classId][a.id][v.day]>0?1:0;
-        const bToday = dayCount[v.classId][b.id][v.day]>0?1:0;
-        if(aToday!==bToday) return aToday-bToday;
-        return remaining[v.classId][b.id]-remaining[v.classId][a.id];
+    /* ---------------------------------------------------------------------
+       Solver (score-based, with 2-hr lab support)
+    --------------------------------------------------------------------- */
+    function generateTimetable() {
+      const days = enabledDays();
+      const totalBlocks = classBlocksInOrder();
+      const classes = state.classes;
+
+      if (classes.length === 0) return { success: false, errors: ['Add at least one class first.'] };
+      if (days.length === 0) return { success: false, errors: ['Enable at least one working day in Schedule structure.'] };
+      if (totalBlocks.length === 0) return { success: false, errors: ['Add at least one class period in Schedule structure.'] };
+
+      // Per-day class blocks + which consecutive pairs are truly continuous (no break/lunch between)
+      const dayBlocks = {}, contiguous = {};
+      days.forEach(d => {
+        const lay = computeDayLayout(d).filter(b => b.type === 'class');
+        dayBlocks[d.name] = lay.map(b => b.id);
+        contiguous[d.name] = lay.map((b, i) => i < lay.length - 1 && b.end === lay[i + 1].start);
       });
-      for(const s of candidates){
-        const teacherFree = !s.teacherId || teacherBusy[s.teacherId][v.day][v.blockId]===undefined;
-        const underMax = !s.teacherId || maxPerDayMap[s.teacherId]==null || teacherDayCount[s.teacherId][v.day] < maxPerDayMap[s.teacherId];
-        const roomOk = !s.room || !roomBusy[s.room] || roomBusy[s.room][v.day][v.blockId]===undefined;
-        if(!teacherFree || !underMax || !roomOk) continue;
-        if(s.teacherId){ teacherBusy[s.teacherId][v.day][v.blockId]=v.classId; teacherDayCount[s.teacherId][v.day]++; }
-        if(s.room){ roomBusy[s.room]=roomBusy[s.room]||emptyDayMap(); roomBusy[s.room][v.day][v.blockId]=v.classId; }
-        remaining[v.classId][s.id]--; dayCount[v.classId][s.id][v.day]++;
-        grid[v.classId][v.day][v.blockId] = {type:'subject', subjectId:s.id, subjectName:s.name, teacherId:s.teacherId||null, teacherName: s.teacherId?(teacherById(s.teacherId)||{}).name||'':'', room:s.room||''};
-        if(tryAssign(idx+1)) return true;
-        grid[v.classId][v.day][v.blockId] = null;
-        dayCount[v.classId][s.id][v.day]--; remaining[v.classId][s.id]++;
-        if(s.teacherId){ delete teacherBusy[s.teacherId][v.day][v.blockId]; teacherDayCount[s.teacherId][v.day]--; }
-        if(s.room) delete roomBusy[s.room][v.day][v.blockId];
+      const availableSlotsTotal = days.reduce((sum, d) => sum + dayBlocks[d.name].length, 0);
+      const anyPair = days.some(d => contiguous[d.name].some(Boolean));
+
+      const errors = [];
+      classes.forEach(c => {
+        const nm = c.name || 'Untitled class';
+        const needed = c.subjects.reduce((s, su) => s + (parseInt(su.periodsPerWeek) || 0), 0);
+        if (needed > availableSlotsTotal) errors.push(`"${nm}" needs ${needed} periods/week but the week only has ${availableSlotsTotal} class periods.`);
+        c.subjects.forEach(su => {
+          const labs = parseInt(su.labSessions) || 0, per = parseInt(su.periodsPerWeek) || 0;
+          if (labs * 2 > per) errors.push(`"${nm}" – ${su.name || 'a subject'}: ${labs} lab session(s) need ${labs * 2} periods but periods/week is ${per}.`);
+          if (labs > 0 && !anyPair) errors.push(`"${nm}" – ${su.name || 'a subject'} has 2-hr labs, but no two class periods are back-to-back without a break/lunch in between.`);
+        });
+      });
+      if (errors.length) return { success: false, errors };
+
+      // Build items to place: labs = size 2, everything else = size 1
+      const items = [];
+      classes.forEach(c => c.subjects.forEach(s => {
+        const total = parseInt(s.periodsPerWeek) || 0;
+        const labs = Math.min(parseInt(s.labSessions) || 0, Math.floor(total / 2));
+        const tid = s.teacherId && teacherById(s.teacherId) ? s.teacherId : null;
+        for (let i = 0; i < labs; i++) items.push({ cls: c, s, tid, size: 2 });
+        for (let i = 0; i < total - labs * 2; i++) items.push({ cls: c, s, tid, size: 1 });
+      }));
+
+      const maxPerDayMap = {};
+      state.teachers.forEach(t => { maxPerDayMap[t.id] = t.maxPerDay ? parseInt(t.maxPerDay) : null; });
+
+      // Teacher load (used to place the most constrained teachers first)
+      const load = {};
+      items.forEach(it => { if (it.tid) load[it.tid] = (load[it.tid] || 0) + it.size; });
+      state.teachers.forEach(t => {
+        let n = 0;
+        Object.values(t.busy || {}).forEach(o => n += Object.keys(o).filter(k => o[k]).length);
+        load[t.id] = (load[t.id] || 0) + n;
+      });
+
+      function attempt() {
+        const grid = {}, teacherBusy = {}, roomBusy = {}, tDay = {}, dayCnt = {}, posCnt = {};
+        classes.forEach(c => {
+          grid[c.id] = {};
+          days.forEach(d => { grid[c.id][d.name] = {}; dayBlocks[d.name].forEach(id => grid[c.id][d.name][id] = null); });
+        });
+        state.teachers.forEach(t => {
+          teacherBusy[t.id] = {}; tDay[t.id] = {};
+          days.forEach(d => {
+            teacherBusy[t.id][d.name] = {}; tDay[t.id][d.name] = 0;
+            const b = (t.busy || {})[d.name] || {};
+            Object.keys(b).forEach(id => { if (b[id]) teacherBusy[t.id][d.name][id] = 'manual'; });
+          });
+        });
+
+        function slotOk(it, d, k) {
+          const blks = dayBlocks[d.name];
+          if (k + it.size > blks.length) return false;
+          if (it.size === 2 && !contiguous[d.name][k]) return false;
+          if (it.tid && maxPerDayMap[it.tid] != null && tDay[it.tid][d.name] + it.size > maxPerDayMap[it.tid]) return false;
+          for (let i = 0; i < it.size; i++) {
+            const id = blks[k + i];
+            if (grid[it.cls.id][d.name][id]) return false;
+            if (it.tid && teacherBusy[it.tid][d.name][id] !== undefined) return false;
+            if (it.s.room && roomBusy[it.s.room] && roomBusy[it.s.room][d.name][id] !== undefined) return false;
+          }
+          return true;
+        }
+
+        function score(it, d, k) {
+          const c = it.cls.id, key = c + '|' + it.s.id, blks = dayBlocks[d.name];
+          let p = Math.random() * 4;
+          p += ((dayCnt[key] && dayCnt[key][d.name]) || 0) * 50;                                  // same subject twice a day
+          for (let i = 0; i < it.size; i++) p += ((posCnt[key] && posCnt[key][k + i]) || 0) * 30; // same period slot every day
+          [k - 1, k + it.size].forEach(n => {                                                      // back-to-back same subject
+            if (n >= 0 && n < blks.length) { const cell = grid[c][d.name][blks[n]]; if (cell && cell.subjectId === it.s.id) p += 40; }
+          });
+          const di = days.indexOf(d);
+          [di - 1, di + 1].forEach(j => { if (j >= 0 && j < days.length && dayCnt[key] && dayCnt[key][days[j].name]) p += 6; });
+          if (it.tid) {
+            p += tDay[it.tid][d.name] * 3;                                                         // balance teacher's daily load
+            [k - 1, k + it.size].forEach(n => { if (n >= 0 && n < blks.length && teacherBusy[it.tid][d.name][blks[n]] !== undefined) p += 8; });
+          }
+          return p;
+        }
+
+        function put(it, d, k) {
+          const blks = dayBlocks[d.name], c = it.cls.id, key = c + '|' + it.s.id;
+          for (let i = 0; i < it.size; i++) {
+            const id = blks[k + i];
+            grid[c][d.name][id] = {
+              type: 'subject', subjectId: it.s.id, subjectName: it.s.name, teacherId: it.tid,
+              teacherName: it.tid ? (teacherById(it.tid) || {}).name || '' : '', room: it.s.room || '',
+              isLab: it.size === 2, pairBlockId: it.size === 2 ? blks[k + (1 - i)] : null
+            };
+            if (it.tid) teacherBusy[it.tid][d.name][id] = c;
+            if (it.s.room) {
+              if (!roomBusy[it.s.room]) { roomBusy[it.s.room] = {}; days.forEach(dd => roomBusy[it.s.room][dd.name] = {}); }
+              roomBusy[it.s.room][d.name][id] = c;
+            }
+            dayCnt[key] = dayCnt[key] || {}; dayCnt[key][d.name] = (dayCnt[key][d.name] || 0) + 1;
+            posCnt[key] = posCnt[key] || {}; posCnt[key][k + i] = (posCnt[key][k + i] || 0) + 1;
+          }
+          if (it.tid) tDay[it.tid][d.name] += it.size;
+        }
+
+        function forcePlace(it) { // last resort: ignore teacher/room limits (shows up as a flagged clash)
+          const opts = [];
+          days.forEach(d => {
+            const blks = dayBlocks[d.name];
+            for (let k = 0; k + it.size <= blks.length; k++) {
+              if (it.size === 2 && !contiguous[d.name][k]) continue;
+              let free = true;
+              for (let i = 0; i < it.size; i++) if (grid[it.cls.id][d.name][blks[k + i]]) free = false;
+              if (free) opts.push({ d, k });
+            }
+          });
+          if (!opts.length) return false;
+          const o = opts[Math.floor(Math.random() * opts.length)];
+          put(it, o.d, o.k); return true;
+        }
+
+        const order = items
+          .map(it => ({ it, key: it.size * 1000 + (it.tid ? load[it.tid] : 0) + Math.random() * 30 }))
+          .sort((a, b) => b.key - a.key).map(x => x.it);
+
+        let cost = 0;
+        order.forEach(it => {
+          let best = null, bestP = Infinity;
+          days.forEach(d => {
+            for (let k = 0; k + it.size <= dayBlocks[d.name].length; k++) {
+              if (!slotOk(it, d, k)) continue;
+              const p = score(it, d, k);
+              if (p < bestP) { bestP = p; best = { d, k }; }
+            }
+          });
+          if (best) { put(it, best.d, best.k); cost += bestP; }
+          else {
+            cost += 1000;
+            if (!forcePlace(it) && it.size === 2) { forcePlace({ ...it, size: 1 }); forcePlace({ ...it, size: 1 }); }
+          }
+        });
+        return { grid, cost };
       }
+
+      let best = null;
+      for (let a = 0; a < 40; a++) {
+        const r = attempt();
+        if (!best || r.cost < best.cost) best = r;
+      }
+      const finalGrid = best.grid;
+
+      const conflicts = [];
+      days.forEach(d => dayBlocks[d.name].forEach(blkId => {
+        const byTeacher = {};
+        classes.forEach(c => {
+          const cell = finalGrid[c.id][d.name][blkId];
+          if (cell && cell.type === 'subject' && cell.teacherId) { (byTeacher[cell.teacherId] = byTeacher[cell.teacherId] || []).push(c.id); }
+        });
+        Object.entries(byTeacher).forEach(([tId, cids]) => { if (cids.length > 1) conflicts.push({ day: d.name, periodId: blkId, teacherId: tId, classIds: cids }); });
+      }));
+
+      return { success: true, grid: finalGrid, conflicts, solvedCleanly: conflicts.length === 0 };
+    }
+
+    /* ---------------------------------------------------------------------
+       DOM helpers
+    --------------------------------------------------------------------- */
+    function el(tag, attrs = {}, ...children) {
+      const e = document.createElement(tag);
+      Object.entries(attrs).forEach(([k, v]) => {
+        if (k === 'class') e.className = v;
+        else if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+        else if (v !== null && v !== undefined) e.setAttribute(k, v);
+      });
+      children.flat().forEach(c => {
+        if (c === null || c === undefined) return;
+        e.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(c) : c);
+      });
+      return e;
+    }
+
+    const STEP_DEFS = [
+      { key: 'structure', title: 'Schedule structure', desc: 'Days, periods & breaks' },
+      { key: 'teachers', title: 'Teachers', desc: 'Availability & limits' },
+      { key: 'classes', title: 'Classes & subjects', desc: 'What each class needs' },
+      { key: 'generate', title: 'Generate', desc: 'Build every timetable at once' },
+      { key: 'class-timetables', title: 'Class timetables', desc: 'View & fine-tune each class' },
+      { key: 'teacher-timetables', title: 'Teacher timetables', desc: "See every teacher's week" },
+    ];
+
+    function stepFilled(key) {
+      if (key === 'structure') return enabledDays().length > 0 && totalClassCount() > 0;
+      if (key === 'teachers') return state.teachers.length > 0;
+      if (key === 'classes') return state.classes.length > 0;
+      if (key === 'generate') return !!state.result;
+      if (key === 'class-timetables') return !!(state.result && state.result.success);
+      if (key === 'teacher-timetables') return !!(state.result && state.result.success);
       return false;
     }
-    if(tryAssign(0)){ solved = true; finalGrid = grid; }
-  }
 
-  if(!solved){
-    const {teacherBusy, roomBusy} = baseBusy();
-    const remaining = {}, dayCount = {};
-    workingClasses.forEach(c=>{
-      remaining[c.id]={}; dayCount[c.id]={};
-      c.subjects.forEach(s=>{ remaining[c.id][s.id]=s.periodsPerWeek; dayCount[c.id][s.id]={}; days.forEach(d=>dayCount[c.id][s.id][d.name]=0); });
-    });
-    const grid = baseGrid();
-    baseVars.forEach(v=>{
-      const cls = workingClasses.find(c=>c.id===v.classId);
-      let candidates = cls.subjects.filter(s=>remaining[v.classId][s.id]>0);
-      if(candidates.length===0) return;
-      candidates.sort((a,b)=>{
-        const aFree = (!a.teacherId || teacherBusy[a.teacherId][v.day][v.blockId]===undefined)?0:1;
-        const bFree = (!b.teacherId || teacherBusy[b.teacherId][v.day][v.blockId]===undefined)?0:1;
-        if(aFree!==bFree) return aFree-bFree;
-        const aToday = dayCount[v.classId][a.id][v.day]>0?1:0, bToday = dayCount[v.classId][b.id][v.day]>0?1:0;
-        return aToday-bToday;
+    function renderSidebar() {
+      const nav = document.getElementById('steps');
+      nav.innerHTML = '';
+      STEP_DEFS.forEach((s, i) => {
+        const isActive = state.view === s.key;
+        const filled = stepFilled(s.key);
+        nav.appendChild(el('div', { class: 'step' + (isActive ? ' active' : '') + (filled ? ' filled' : ''), onclick: () => { state.view = s.key; render(); } },
+          el('div', { class: 'num' }, filled ? '✓' : String(i + 1)),
+          el('div', { class: 'label' }, el('div', { class: 'title' }, s.title), el('div', { class: 'desc' }, s.desc))
+        ));
       });
-      const s = candidates[0];
-      if(s.teacherId) teacherBusy[s.teacherId][v.day][v.blockId]=v.classId;
-      if(s.room){ roomBusy[s.room]=roomBusy[s.room]||emptyDayMap(); roomBusy[s.room][v.day][v.blockId]=v.classId; }
-      remaining[v.classId][s.id]--; dayCount[v.classId][s.id][v.day]++;
-      grid[v.classId][v.day][v.blockId] = {type:'subject', subjectId:s.id, subjectName:s.name, teacherId:s.teacherId||null, teacherName: s.teacherId?(teacherById(s.teacherId)||{}).name||'':'', room:s.room||''};
-    });
-    finalGrid = grid;
-  }
-
-  const conflicts = [];
-  days.forEach(d=> dayClassBlocks(d).forEach(blk=>{
-    const byTeacher = {};
-    workingClasses.forEach(c=>{
-      const cell = finalGrid[c.id][d.name][blk.id];
-      if(cell && cell.type==='subject' && cell.teacherId){ byTeacher[cell.teacherId]=byTeacher[cell.teacherId]||[]; byTeacher[cell.teacherId].push(c.id); }
-    });
-    Object.entries(byTeacher).forEach(([tId,cids])=>{ if(cids.length>1) conflicts.push({day:d.name, periodId:blk.id, teacherId:tId, classIds:cids}); });
-  }));
-
-  return {success:true, grid:finalGrid, conflicts, solvedCleanly:solved};
-}
-
-/* ---------------------------------------------------------------------
-   DOM helpers
---------------------------------------------------------------------- */
-function el(tag, attrs={}, ...children){
-  const e = document.createElement(tag);
-  Object.entries(attrs).forEach(([k,v])=>{
-    if(k==='class') e.className = v;
-    else if(k.startsWith('on') && typeof v==='function') e.addEventListener(k.slice(2), v);
-    else if(v!==null && v!==undefined) e.setAttribute(k,v);
-  });
-  children.flat().forEach(c=>{
-    if(c===null||c===undefined) return;
-    e.appendChild(typeof c==='string'||typeof c==='number' ? document.createTextNode(c) : c);
-  });
-  return e;
-}
-
-const STEP_DEFS = [
-  {key:'structure', title:'Schedule structure', desc:'Days, periods & breaks'},
-  {key:'teachers',  title:'Teachers', desc:'Availability & limits'},
-  {key:'classes',   title:'Classes & subjects', desc:'What each class needs'},
-  {key:'generate',  title:'Generate', desc:'Build every timetable at once'},
-  {key:'class-timetables', title:'Class timetables', desc:'View & fine-tune each class'},
-  {key:'teacher-timetables', title:'Teacher timetables', desc:"See every teacher's week"},
-];
-
-function stepFilled(key){
-  if(key==='structure') return enabledDays().length>0 && totalClassCount()>0;
-  if(key==='teachers') return state.teachers.length>0;
-  if(key==='classes') return state.classes.length>0;
-  if(key==='generate') return !!state.result;
-  if(key==='class-timetables') return !!(state.result && state.result.success);
-  if(key==='teacher-timetables') return !!(state.result && state.result.success);
-  return false;
-}
-
-function renderSidebar(){
-  const nav = document.getElementById('steps');
-  nav.innerHTML = '';
-  STEP_DEFS.forEach((s,i)=>{
-    const isActive = state.view===s.key;
-    const filled = stepFilled(s.key);
-    nav.appendChild(el('div',{class:'step'+(isActive?' active':'')+(filled?' filled':''), onclick:()=>{ state.view=s.key; render(); }},
-      el('div',{class:'num'}, filled?'✓':String(i+1)),
-      el('div',{class:'label'}, el('div',{class:'title'}, s.title), el('div',{class:'desc'}, s.desc))
-    ));
-  });
-}
-
-function render(){
-  renderSidebar();
-  const main = document.getElementById('main');
-  main.innerHTML = '';
-  if(state.view==='structure') renderStructure(main);
-  else if(state.view==='teachers') renderTeachers(main);
-  else if(state.view==='classes') renderClasses(main);
-  else if(state.view==='generate') renderGenerate(main);
-  else if(state.view==='class-timetables') renderClassTimetables(main);
-  else if(state.view==='teacher-timetables') renderTeacherTimetables(main);
-}
-
-function stepNav(main, prevKey, nextKey, nextLabel){
-  const row = el('div',{class:'nav-actions'});
-  row.appendChild(prevKey ? el('button',{class:'secondary-btn', onclick:()=>{state.view=prevKey; render();}}, '← Back') : el('span'));
-  row.appendChild(nextKey ? el('button',{class:'primary-btn', onclick:()=>{state.view=nextKey; render();}}, nextLabel||'Continue →') : el('span'));
-  main.appendChild(row);
-}
-
-/* ---- Step 1: Structure ---- */
-function renderStructure(main){
-  main.appendChild(el('div',{class:'main-head'},
-    el('h1',{}, 'Schedule structure'),
-    el('p',{}, "Choose your working days and how many periods each has, then lay out the periods and breaks for a full day — drag to reorder. Lunch is placed automatically wherever it falls once the day starts.")
-  ));
-
-  const p1 = el('div',{class:'panel'});
-  p1.appendChild(el('h3',{}, 'Working days'));
-  const daysList = el('div',{class:'days-list'});
-  state.structure.days.forEach(d=>{
-    const cb = el('input',{type:'checkbox'});
-    cb.checked = d.enabled;
-    cb.onchange = ()=>{ d.enabled = cb.checked; scheduleSave(); render(); };
-    const num = el('input',{type:'number', min:'0', max:String(totalClassCount()), value:String(d.periodCount)});
-    num.disabled = !d.enabled;
-    num.oninput = ()=>{
-      let v = parseInt(num.value)||0;
-      v = Math.max(0, Math.min(v, totalClassCount()));
-      d.periodCount = v; scheduleSave();
-    };
-    const customBtn = el('button',{class:'custom-toggle', type:'button', onclick:()=>{
-      d.customHours = !d.customHours;
-      if(d.customHours){
-        d.startTime = d.startTime || state.structure.startTime;
-        d.periodLength = d.periodLength || state.structure.periodLength;
-        d.lunchStart = d.lunchStart || state.structure.lunchStart;
-        d.lunchEnd = d.lunchEnd || state.structure.lunchEnd;
-      }
-      scheduleSave(); render();
-    }}, d.customHours ? 'Use standard hours' : 'Custom hours…');
-    customBtn.disabled = !d.enabled;
-
-    const headerRow = el('div',{class:'day-row'}, cb, el('span',{class:'day-name'}, d.name), num, el('span',{class:'unit'}, 'periods'), customBtn);
-    const wrap = el('div',{class:'day-row-wrap'}, headerRow);
-
-    if(d.enabled && d.customHours){
-      function dTimeField(labelText, val, onSet){
-        const inp = el('input',{type:'time', value:val});
-        inp.onchange = ()=>{ onSet(inp.value); scheduleSave(); render(); };
-        return el('div',{class:'field'}, el('label',{}, labelText), inp);
-      }
-      const cFields = el('div',{class:'day-custom-fields'});
-      cFields.appendChild(dTimeField('Starts at', d.startTime, v=>{ d.startTime=v; }));
-      const lenInp = el('input',{type:'number', min:'5', value:String(d.periodLength)});
-      lenInp.onchange = ()=>{ d.periodLength = Math.max(5, parseInt(lenInp.value)||45); scheduleSave(); render(); };
-      cFields.appendChild(el('div',{class:'field'}, el('label',{}, 'Period length (min)'), lenInp));
-      cFields.appendChild(dTimeField('Lunch starts', d.lunchStart, v=>{ d.lunchStart=v; }));
-      cFields.appendChild(dTimeField('Lunch ends', d.lunchEnd, v=>{ d.lunchEnd=v; }));
-      wrap.appendChild(cFields);
     }
-    daysList.appendChild(wrap);
-  });
-  p1.appendChild(daysList);
-  p1.appendChild(el('div',{class:'hint'}, 'Uncheck a day to skip it entirely, lower its period count for a shorter day, or use "Custom hours" to give a day its own start time, period length and lunch window — e.g. a half-day Saturday that starts later or skips lunch.'));
-  main.appendChild(p1);
 
-  const p2 = el('div',{class:'panel'});
-  p2.appendChild(el('h3',{}, 'Day structure'));
-  p2.appendChild(el('p',{class:'hint', style:'margin:-6px 0 14px;'}, "These are the defaults for every working day — override any of them for a specific day above with \"Custom hours\". Lunch is placed automatically wherever it chronologically falls once the day starts — a short day that ends before lunch simply won't show a lunch break."));
-  const fields = el('div',{class:'struct-fields'});
-  function timeField(labelText, val, onSet){
-    const inp = el('input',{type:'time', value:val});
-    inp.onchange = ()=>{ onSet(inp.value); scheduleSave(); render(); };
-    return el('div',{class:'field'}, el('label',{}, labelText), inp);
-  }
-  fields.appendChild(timeField('School starts at', state.structure.startTime, v=>state.structure.startTime=v));
-  const lenInp = el('input',{type:'number', min:'5', value:String(state.structure.periodLength)});
-  lenInp.onchange = ()=>{ state.structure.periodLength = Math.max(5, parseInt(lenInp.value)||45); scheduleSave(); render(); };
-  fields.appendChild(el('div',{class:'field'}, el('label',{}, 'Period length (minutes)'), lenInp));
-  fields.appendChild(timeField('Lunch starts at', state.structure.lunchStart, v=>state.structure.lunchStart=v));
-  fields.appendChild(timeField('Lunch ends at', state.structure.lunchEnd, v=>state.structure.lunchEnd=v));
-  p2.appendChild(fields);
-  main.appendChild(p2);
-
-  const p3 = el('div',{class:'panel'});
-  p3.appendChild(el('h3',{}, 'Periods & breaks ', el('span',{class:'count'}, `${totalClassCount()} class periods`)));
-  const list = el('div',{class:'block-list'});
-  const s = state.structure;
-  const lunchStartMin = timeToMin(s.lunchStart), lunchEndMin = timeToMin(s.lunchEnd);
-  const lunchDur = Math.max(0, lunchEndMin-lunchStartMin);
-  let t = timeToMin(s.startTime);
-  let lunchShown = false;
-  s.template.forEach(b=>{
-    if(!lunchShown && lunchDur>0 && t>=lunchStartMin){
-      list.appendChild(el('div',{class:'lunch-preview-row'}, el('b',{}, 'Lunch'), `${minToTime(t)}–${minToTime(t+lunchDur)}`, el('span',{class:'hint', style:'margin-left:auto;'}, 'auto-placed from Day structure')));
-      t += lunchDur; lunchShown = true;
+    function render() {
+      renderSidebar();
+      const main = document.getElementById('main');
+      main.innerHTML = '';
+      if (state.view === 'structure') renderStructure(main);
+      else if (state.view === 'teachers') renderTeachers(main);
+      else if (state.view === 'classes') renderClasses(main);
+      else if (state.view === 'generate') renderGenerate(main);
+      else if (state.view === 'class-timetables') renderClassTimetables(main);
+      else if (state.view === 'teacher-timetables') renderTeacherTimetables(main);
     }
-    const dur = b.type==='class' ? s.periodLength : (parseInt(b.duration)||10);
-    const row = el('div',{class:'block-row', draggable:'true'});
-    row.ondragstart = (e)=>{ dragBlockId = b.id; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; };
-    row.ondragend = ()=> row.classList.remove('dragging');
-    row.ondragover = (e)=> e.preventDefault();
-    row.ondrop = (e)=>{
-      e.preventDefault();
-      if(!dragBlockId || dragBlockId===b.id) return;
-      const arr = state.structure.template;
-      const from = arr.findIndex(x=>x.id===dragBlockId);
-      const to = arr.findIndex(x=>x.id===b.id);
-      if(from<0||to<0) return;
-      const [moved] = arr.splice(from,1);
-      arr.splice(to,0,moved);
-      scheduleSave(); render();
-    };
-    const nameInput = el('input',{type:'text', value:b.label});
-    nameInput.oninput = ()=>{ b.label = nameInput.value; scheduleSave(); };
-    row.appendChild(el('span',{class:'handle'}, '⠿'));
-    row.appendChild(nameInput);
-    row.appendChild(el('span',{class:'type-tag'+(b.type==='break'?' break-tag':'')}, b.type==='class'?'Class':'Break'));
-    if(b.type==='break'){
-      const durInput = el('input',{type:'number', min:'5', value:String(b.duration||10)});
-      durInput.oninput = ()=>{ b.duration = Math.max(5, parseInt(durInput.value)||10); scheduleSave(); render(); };
-      row.appendChild(durInput);
-      row.appendChild(el('span',{class:'hint'}, 'min'));
+
+    function stepNav(main, prevKey, nextKey, nextLabel) {
+      const row = el('div', { class: 'nav-actions' });
+      row.appendChild(prevKey ? el('button', { class: 'secondary-btn', onclick: () => { state.view = prevKey; render(); } }, '← Back') : el('span'));
+      row.appendChild(nextKey ? el('button', { class: 'primary-btn', onclick: () => { state.view = nextKey; render(); } }, nextLabel || 'Continue →') : el('span'));
+      main.appendChild(row);
     }
-    row.appendChild(el('span',{class:'time-preview'}, `${minToTime(t)}–${minToTime(t+dur)}`));
-    const upBtn = el('button',{onclick:()=>{
-      const arr = state.structure.template; const i = arr.findIndex(x=>x.id===b.id);
-      if(i>0){ [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; scheduleSave(); render(); }
-    }}, '▲');
-    const downBtn = el('button',{onclick:()=>{
-      const arr = state.structure.template; const i = arr.findIndex(x=>x.id===b.id);
-      if(i<arr.length-1){ [arr[i+1],arr[i]]=[arr[i],arr[i+1]]; scheduleSave(); render(); }
-    }}, '▼');
-    row.appendChild(el('div',{class:'order-btns'}, upBtn, downBtn));
-    row.appendChild(el('button',{class:'row-del', onclick:()=>{
-      if(b.type==='class' && classBlocksInOrder().length<=1){ alert('You need at least one class period.'); return; }
-      state.structure.template = state.structure.template.filter(x=>x.id!==b.id);
-      const newTotal = classBlocksInOrder().length;
-      state.structure.days.forEach(d=>{ d.periodCount = Math.min(d.periodCount, newTotal); });
-      scheduleSave(); render();
-    }}, '✕'));
-    list.appendChild(row);
-    t += dur;
-  });
-  p3.appendChild(list);
 
-  const addRow = el('div',{class:'field-row', style:'margin-top:12px;'});
-  addRow.appendChild(el('button',{class:'add-row-btn', onclick:()=>{
-    const oldTotal = classBlocksInOrder().length;
-    state.structure.template.push({id:uid(), type:'class', label:`Period ${oldTotal+1}`});
-    const newTotal = oldTotal+1;
-    state.structure.days.forEach(d=>{ if(d.enabled && d.periodCount>=oldTotal) d.periodCount = newTotal; });
-    scheduleSave(); render();
-  }}, '+ Add class period'));
-  addRow.appendChild(el('button',{class:'add-row-btn', onclick:()=>{
-    state.structure.template.push({id:uid(), type:'break', label:'Break', duration:15});
-    scheduleSave(); render();
-  }}, '+ Add break'));
-  p3.appendChild(addRow);
-  p3.appendChild(el('div',{class:'hint'}, 'Drag a row (or use the arrows) to move it — times recalculate automatically based on period length and break duration.'));
-  main.appendChild(p3);
+    /* ---- Step 1: Structure ---- */
+    function renderStructure(main) {
+      main.appendChild(el('div', { class: 'main-head' },
+        el('h1', {}, 'Schedule structure'),
+        el('p', {}, "Choose your working days and how many periods each has, then lay out the periods and breaks for a full day — drag to reorder. Lunch is placed automatically wherever it falls once the day starts.")
+      ));
 
-  stepNav(main, null, 'teachers', 'Continue to teachers →');
-}
-
-/* ---- Step 2: Teachers ---- */
-function renderTeachers(main){
-  main.appendChild(el('div',{class:'main-head'},
-    el('h1',{}, 'Teachers'),
-    el('p',{}, "Add every teacher who'll appear in any class's timetable. Mark any periods they're already known to be unavailable — a personal commitment, or (for single-class planning) a slot they're already teaching in a class you haven't entered here. Click squares to toggle busy/free.")
-  ));
-
-  if(state.teachers.length===0){
-    main.appendChild(el('div',{class:'empty-state'}, 'No teachers yet. Add your first one below.'));
-  }
-
-  state.teachers.forEach(t=>{
-    const panel = el('div',{class:'panel'});
-    const head = el('div',{class:'field-row', style:'justify-content:space-between;'});
-    const nameInput = el('input',{type:'text', value:t.name, placeholder:'e.g. Ms. Rao', style:'font-size:15px;font-weight:600;min-width:200px;'});
-    nameInput.oninput = ()=>{ t.name = nameInput.value; scheduleSave(); };
-    const maxInp = el('input',{type:'number', min:'0', value:t.maxPerDay||'', placeholder:'—', style:'width:70px;'});
-    maxInp.oninput = ()=>{ t.maxPerDay = maxInp.value; scheduleSave(); };
-    const right = el('div',{class:'field-row', style:'gap:8px;margin-bottom:0;'},
-      el('div',{class:'field'}, el('label',{}, 'Max periods/day'), maxInp),
-      el('button',{class:'row-del', style:'font-size:16px;', onclick:()=>{
-        state.teachers = state.teachers.filter(x=>x.id!==t.id);
-        state.classes.forEach(c=>c.subjects.forEach(s=>{ if(s.teacherId===t.id) s.teacherId=''; }));
-        scheduleSave(); render();
-      }}, '✕')
-    );
-    head.appendChild(nameInput); head.appendChild(right);
-    panel.appendChild(head);
-
-    panel.appendChild(el('div',{class:'hint', style:'margin:10px 0 4px;'}, 'Mark periods this teacher is already unavailable (busy elsewhere, or personal). Click a square to toggle.'));
-
-    const totalBlocks = classBlocksInOrder();
-    const eDays = enabledDays();
-    const table = el('table',{class:'busy-grid'});
-    const headRow = el('tr',{}, el('th',{}));
-    eDays.forEach(d=> headRow.appendChild(el('th',{}, d.name)));
-    table.appendChild(headRow);
-    totalBlocks.forEach((blk, idx)=>{
-      const row = el('tr',{});
-      row.appendChild(el('td',{}, el('div',{class:'period-tag'}, `P${idx+1}`)));
-      eDays.forEach(d=>{
-        const applicable = idx < d.periodCount;
-        const td = el('td',{});
-        if(!applicable){
-          td.appendChild(el('div',{class:'busy-cell disabled'}));
-        } else {
-          t.busy = t.busy || {};
-          t.busy[d.name] = t.busy[d.name] || {};
-          const isBusy = !!t.busy[d.name][blk.id];
-          td.appendChild(el('div',{class:'busy-cell'+(isBusy?' busy':''), title: isBusy?'Busy — click to clear':'Free — click to mark busy', onclick:()=>{
-            if(t.busy[d.name][blk.id]) delete t.busy[d.name][blk.id];
-            else t.busy[d.name][blk.id] = true;
+      const p1 = el('div', { class: 'panel' });
+      p1.appendChild(el('h3', {}, 'Working days'));
+      const daysList = el('div', { class: 'days-list' });
+      state.structure.days.forEach(d => {
+        const cb = el('input', { type: 'checkbox' });
+        cb.checked = d.enabled;
+        cb.onchange = () => { d.enabled = cb.checked; scheduleSave(); render(); };
+        const num = el('input', { type: 'number', min: '0', max: String(totalClassCount()), value: String(d.periodCount) });
+        num.disabled = !d.enabled;
+        num.oninput = () => {
+          let v = parseInt(num.value) || 0;
+          v = Math.max(0, Math.min(v, totalClassCount()));
+          d.periodCount = v; scheduleSave();
+        };
+        const customBtn = el('button', {
+          class: 'custom-toggle', type: 'button', onclick: () => {
+            d.customHours = !d.customHours;
+            if (d.customHours) {
+              d.startTime = d.startTime || state.structure.startTime;
+              d.periodLength = d.periodLength || state.structure.periodLength;
+              d.lunchStart = d.lunchStart || state.structure.lunchStart;
+              d.lunchEnd = d.lunchEnd || state.structure.lunchEnd;
+            }
             scheduleSave(); render();
-          }}));
-        }
-        row.appendChild(td);
-      });
-      table.appendChild(row);
-    });
-    panel.appendChild(table);
-    main.appendChild(panel);
-  });
-
-  main.appendChild(el('button',{class:'add-row-btn', onclick:()=>{
-    state.teachers.push({id:uid(), name:'', maxPerDay:'', busy:{}});
-    scheduleSave(); render();
-  }}, '+ Add teacher'));
-
-  stepNav(main, 'structure', 'classes', 'Continue to classes →');
-}
-
-/* ---- Step 3: Classes & subjects ---- */
-function renderClasses(main){
-  main.appendChild(el('div',{class:'main-head'},
-    el('h1',{}, 'Classes & subjects'),
-    el('p',{}, "For each class, list its subjects, who teaches each one, and how many periods a week it needs. Leave room blank if you don't need to track rooms.")
-  ));
-
-  if(state.teachers.length===0){
-    main.appendChild(el('div',{class:'error-box'}, el('b',{},'Add teachers first'), "You'll need at least one teacher before assigning subjects here."));
-  }
-
-  const availableCount = enabledDays().reduce((sum,d)=> sum + Math.min(d.periodCount, totalClassCount()), 0);
-
-  state.classes.forEach(c=>{
-    const panel = el('div',{class:'panel'});
-    const head = el('div',{class:'field-row', style:'justify-content:space-between; margin-bottom:14px;'});
-    const nameInput = el('input',{type:'text', value:c.name, placeholder:'Class name, e.g. Grade 8 - A', style:'font-size:15px;font-weight:600;min-width:240px;'});
-    nameInput.oninput = ()=>{ c.name = nameInput.value; scheduleSave(); };
-    const delClass = el('button',{class:'secondary-btn', onclick:()=>{
-      if(confirm(`Remove ${c.name||'this class'} and all its subjects?`)){
-        state.classes = state.classes.filter(x=>x.id!==c.id);
-        scheduleSave(); render();
-      }
-    }}, 'Remove class');
-    head.appendChild(nameInput); head.appendChild(delClass);
-    panel.appendChild(head);
-
-    const table = el('table',{class:'editor'});
-    table.appendChild(el('tr',{}, el('th',{},'Subject'), el('th',{},'Teacher'), el('th',{},'Periods / week'), el('th',{},'Room (optional)'), el('th',{})));
-    c.subjects.forEach(s=>{
-      const subjInput = el('input',{type:'text', value:s.name, placeholder:'e.g. Mathematics'});
-      subjInput.oninput = ()=>{ s.name = subjInput.value; scheduleSave(); };
-      const teachSel = el('select',{});
-      teachSel.appendChild(el('option',{value:''}, '— select —'));
-      state.teachers.forEach(t=> teachSel.appendChild(el('option',{value:t.id}, t.name||'(unnamed)')));
-      teachSel.value = s.teacherId||'';
-      teachSel.onchange = ()=>{ s.teacherId = teachSel.value; scheduleSave(); };
-      const perWeekInput = el('input',{type:'number', value:s.periodsPerWeek, min:'0'});
-      perWeekInput.oninput = ()=>{ s.periodsPerWeek = perWeekInput.value; scheduleSave(); };
-      const roomInput = el('input',{type:'text', value:s.room||'', placeholder:'e.g. Lab 2'});
-      roomInput.oninput = ()=>{ s.room = roomInput.value; scheduleSave(); };
-      const del = el('button',{class:'row-del', onclick:()=>{
-        c.subjects = c.subjects.filter(x=>x.id!==s.id);
-        scheduleSave(); render();
-      }}, '✕');
-      table.appendChild(el('tr',{}, el('td',{},subjInput), el('td',{},teachSel), el('td',{},perWeekInput), el('td',{},roomInput), el('td',{},del)));
-    });
-    panel.appendChild(table);
-
-    const usedCount = c.subjects.reduce((s,su)=>s+(parseInt(su.periodsPerWeek)||0),0);
-    panel.appendChild(el('button',{class:'add-row-btn', onclick:()=>{
-      c.subjects.push({id:uid(), name:'', teacherId:'', periodsPerWeek:1, room:''});
-      scheduleSave(); render();
-    }}, '+ Add subject'));
-    panel.appendChild(el('div',{class:'hint'}, `${usedCount} of ${availableCount} weekly periods assigned` + (usedCount<availableCount ? ` — the rest will show as Free Period.` : usedCount>availableCount ? ` — that's ${usedCount-availableCount} too many for this class.` : '.')));
-    main.appendChild(panel);
-  });
-
-  main.appendChild(el('button',{class:'add-row-btn', onclick:()=>{
-    state.classes.push({id:uid(), name:'', subjects:[]});
-    scheduleSave(); render();
-  }}, '+ Add class'));
-
-  if(state.classes.length===0){
-    main.appendChild(el('div',{class:'empty-state', style:'margin-top:14px;'}, 'No classes yet — add one above to start listing its subjects.'));
-  }
-
-  stepNav(main, 'teachers', 'generate', 'Continue to generate →');
-}
-
-/* ---- Step 4: Generate ---- */
-function renderGenerate(main){
-  main.appendChild(el('div',{class:'main-head'},
-    el('h1',{}, 'Generate'),
-    el('p',{}, "Builds every class's timetable together, so teachers never overlap across classes.")
-  ));
-
-  const btnRow = el('div',{style:'margin-bottom:20px;'});
-  const genBtn = el('button',{class:'primary-btn', onclick:()=>{
-    genBtn.disabled = true; genBtn.textContent = 'Generating…';
-    setTimeout(()=>{
-      const res = generateTimetable();
-      if(!res.success){
-        state.result = {success:false, errors:res.errors};
-      } else {
-        state.result = {success:true, grid:res.grid, conflicts:res.conflicts, solvedCleanly:res.solvedCleanly, generatedAt:Date.now()};
-        state.resultTab = state.classes[0] ? state.classes[0].id : null;
-      }
-      scheduleSave(); render();
-    }, 30);
-  }}, state.result && state.result.success ? 'Regenerate' : 'Generate timetables');
-  btnRow.appendChild(genBtn);
-  main.appendChild(btnRow);
-
-  if(!state.result){
-    main.appendChild(el('div',{class:'empty-state'}, 'Nothing generated yet. Click "Generate timetables" once your structure, teachers and classes are filled in.'));
-    stepNav(main, 'classes', null);
-    return;
-  }
-
-  if(!state.result.success){
-    const box = el('div',{class:'error-box'}, el('b',{},"Couldn't generate — fix these first:"));
-    state.result.errors.forEach(e=> box.appendChild(el('div',{style:'margin-top:4px;'}, '• '+e)));
-    main.appendChild(box);
-    stepNav(main, 'classes', null);
-    return;
-  }
-
-  if(state.result.conflicts.length){
-    main.appendChild(el('div',{class:'error-box'},
-      el('b',{}, `${state.result.conflicts.length} teacher clash${state.result.conflicts.length>1?'es':''} couldn't be avoided`),
-      "This usually means a teacher is needed in two places at once given the current periods/week and availability. Fix them from Class timetables, or reduce that teacher's load."
-    ));
-  } else {
-    main.appendChild(el('div',{class:'panel'}, el('div',{style:'color:var(--ink-dark);font-weight:600;'}, '✓ Generated with no clashes.')));
-  }
-
-  const nextRow = el('div',{class:'field-row'});
-  nextRow.appendChild(el('button',{class:'secondary-btn', onclick:()=>{state.view='class-timetables'; render();}}, 'View class timetables →'));
-  nextRow.appendChild(el('button',{class:'secondary-btn', onclick:()=>{state.view='teacher-timetables'; render();}}, 'View teacher timetables →'));
-  main.appendChild(nextRow);
-
-  stepNav(main, 'classes', null);
-}
-
-/* ---- Step 5: Class timetables ---- */
-function renderClassTimetables(main){
-  main.appendChild(el('div',{class:'main-head'}, el('h1',{}, 'Class timetables'), el('p',{}, "Each class's generated week. Click a cell to reassign it.")));
-  if(!state.result || !state.result.success){
-    main.appendChild(el('div',{class:'empty-state'}, 'Nothing to show yet — generate timetables first.'));
-    stepNav(main, 'generate', 'teacher-timetables');
-    return;
-  }
-  const tabbar = el('div',{class:'tabbar'});
-  state.classes.forEach(c=>{
-    const hasConflict = state.result.conflicts.some(cf=>cf.classIds.includes(c.id));
-    tabbar.appendChild(el('div',{class:'tab'+(state.resultTab===c.id?' active':''), onclick:()=>{ state.resultTab=c.id; render(); }}, c.name||'(unnamed)', hasConflict?el('span',{class:'warn-dot'}):null));
-  });
-  main.appendChild(tabbar);
-  const cls = classById(state.resultTab) || state.classes[0];
-  if(cls) renderClassGrid(main, cls);
-  stepNav(main, 'generate', 'teacher-timetables', 'View teacher timetables →');
-}
-
-function renderClassGrid(main, cls){
-  const days = enabledDays();
-  const rows = unionLayout();
-  const dayMaps = {};
-  days.forEach(d=> dayMaps[d.name] = dayLayoutMapFor(d));
-
-  const toolbar = el('div',{class:'grid-toolbar'});
-  toolbar.appendChild(el('h2',{}, cls.name||'(unnamed)'));
-  toolbar.appendChild(el('button',{class:'secondary-btn', onclick:()=>window.print()}, 'Print'));
-  main.appendChild(toolbar);
-
-  const table = el('table',{class:'tt-grid'});
-  const headRow = el('tr',{}, el('th',{style:'width:90px;'}, ''));
-  days.forEach(d=> headRow.appendChild(el('th',{}, d.name)));
-  table.appendChild(headRow);
-
-  rows.forEach(rowDef=>{
-    const row = el('tr',{});
-    row.appendChild(el('td',{class:'period-label'}, el('b',{},rowDef.label), `${rowDef.start}–${rowDef.end}`));
-    days.forEach(d=>{
-      const dEntry = dayMaps[d.name][rowDef.id];
-      const td = el('td',{class:'cell'});
-      if(!dEntry){
-        td.appendChild(el('div',{class:'cell-inner locked', style:'color:var(--border);'}, '—'));
-      } else if(rowDef.type!=='class'){
-        td.appendChild(el('div',{class:'cell-inner break'}, rowDef.label));
-      } else {
-        const cellData = state.result.grid[cls.id][d.name][rowDef.id];
-        const conflict = state.result.conflicts.find(cf=>cf.day===d.name && cf.periodId===rowDef.id && cf.classIds.includes(cls.id));
-        td.appendChild(renderEditableCell(cls, d.name, rowDef, cellData, conflict));
-      }
-      row.appendChild(td);
-    });
-    table.appendChild(row);
-  });
-  main.appendChild(table);
-
-  main.appendChild(el('div',{class:'legend'},
-    el('span',{}, el('i',{style:'background:var(--free)'}), 'Free period'),
-    el('span',{}, el('i',{style:'background:#fff;border:1px solid var(--border)'}), 'Subject'),
-    el('span',{}, el('i',{style:'background:var(--warn-bg)'}), 'Teacher clash — click to fix'),
-    el('span',{}, el('i',{style:'background:#F1EEE3'}), 'Break / Lunch')
-  ));
-}
-
-function renderEditableCell(cls, day, period, cellData, conflict){
-  const wrap = el('div',{});
-  const isConflict = !!conflict || (cellData && cellData.forcedConflict);
-
-  function showView(){
-    wrap.innerHTML = '';
-    if(!cellData){
-      wrap.appendChild(el('div',{class:'cell-inner free'}, 'Free period'));
-      return;
-    }
-    const inner = el('div',{class:'cell-inner'+(isConflict?' conflict':''), onclick: showEdit},
-      el('div',{class:'subj'}, cellData.subjectName),
-      cellData.teacherName ? el('div',{class:'teach'}, cellData.teacherName) : null,
-      cellData.room ? el('div',{class:'room'}, cellData.room) : null,
-    );
-    if(isConflict) inner.appendChild(el('div',{class:'conflict-flag'}, '⚠'));
-    wrap.appendChild(inner);
-  }
-
-  function showEdit(){
-    wrap.innerHTML = '';
-    const sel = el('select',{class:'cell-edit'});
-    sel.appendChild(el('option',{value:''}, 'Free period'));
-    cls.subjects.forEach(s=> sel.appendChild(el('option',{value:s.id}, s.name||'(unnamed subject)')));
-    sel.value = cellData ? cellData.subjectId : '';
-    sel.onchange = ()=>{
-      if(!sel.value){
-        state.result.grid[cls.id][day][period.id] = null;
-      } else {
-        const s = cls.subjects.find(x=>x.id===sel.value);
-        state.result.grid[cls.id][day][period.id] = {type:'subject', subjectId:s.id, subjectName:s.name, teacherId:s.teacherId||null, teacherName: s.teacherId?(teacherById(s.teacherId)||{}).name||'':'', room:s.room||''};
-      }
-      recomputeConflicts();
-      scheduleSave();
-      render();
-    };
-    wrap.appendChild(sel);
-    sel.focus();
-  }
-
-  showView();
-  return wrap;
-}
-
-function recomputeConflicts(){
-  const days = enabledDays();
-  const totalBlocks = classBlocksInOrder();
-  const conflicts = [];
-  days.forEach(d=>{
-    totalBlocks.forEach((blk, idx)=>{
-      if(idx>=d.periodCount) return;
-      const byTeacher = {};
-      state.classes.forEach(c=>{
-        const cell = state.result.grid[c.id][d.name][blk.id];
-        if(cell && cell.type==='subject' && cell.teacherId){ byTeacher[cell.teacherId]=byTeacher[cell.teacherId]||[]; byTeacher[cell.teacherId].push(c.id); }
-      });
-      Object.entries(byTeacher).forEach(([tId,cids])=>{ if(cids.length>1) conflicts.push({day:d.name, periodId:blk.id, teacherId:tId, classIds:cids}); });
-    });
-  });
-  state.result.conflicts = conflicts;
-}
-
-/* ---- Step 6: Teacher timetables ---- */
-function renderTeacherTimetables(main){
-  main.appendChild(el('div',{class:'main-head'}, el('h1',{}, 'Teacher timetables'), el('p',{}, "Every teacher's week across all classes.")));
-  if(!state.result || !state.result.success){
-    main.appendChild(el('div',{class:'empty-state'}, 'Nothing to show yet — generate timetables first.'));
-    stepNav(main, 'class-timetables', null);
-    return;
-  }
-  renderTeacherView(main);
-  stepNav(main, 'class-timetables', null);
-}
-
-function renderTeacherView(main){
-  const days = enabledDays();
-  const rows = unionLayout();
-  const dayMaps = {};
-  days.forEach(d=> dayMaps[d.name] = dayLayoutMapFor(d));
-
-  if(state.teachers.length===0){
-    main.appendChild(el('div',{class:'empty-state'}, 'No teachers added yet.'));
-    return;
-  }
-  state.teachers.forEach(t=>{
-    main.appendChild(el('h3',{style:'margin:22px 0 10px;font-size:14.5px;'}, t.name||'(unnamed teacher)'));
-    const table = el('table',{class:'tt-grid'});
-    const headRow = el('tr',{}, el('th',{style:'width:90px;'}, ''));
-    days.forEach(d=> headRow.appendChild(el('th',{}, d.name)));
-    table.appendChild(headRow);
-    rows.forEach(rowDef=>{
-      const row = el('tr',{});
-      row.appendChild(el('td',{class:'period-label'}, el('b',{},rowDef.label), `${rowDef.start}–${rowDef.end}`));
-      days.forEach(d=>{
-        const dEntry = dayMaps[d.name][rowDef.id];
-        const td = el('td',{class:'cell'});
-        if(!dEntry){
-          td.appendChild(el('div',{class:'cell-inner locked', style:'color:var(--border);'}, '—'));
-        } else if(rowDef.type!=='class'){
-          td.appendChild(el('div',{class:'cell-inner break'}, rowDef.label));
-        } else {
-          let found = null;
-          state.classes.forEach(c=>{
-            const cell = state.result.grid[c.id][d.name][rowDef.id];
-            if(cell && cell.type==='subject' && cell.teacherId===t.id) found = {cls:c, cell};
-          });
-          const manualBusy = t.busy && t.busy[d.name] && t.busy[d.name][rowDef.id];
-          const conflict = state.result.conflicts.find(cf=>cf.day===d.name && cf.periodId===rowDef.id && cf.teacherId===t.id);
-          if(found){
-            td.appendChild(el('div',{class:'cell-inner'+(conflict?' conflict':'')}, el('div',{class:'subj'},found.cell.subjectName), el('div',{class:'teach'},found.cls.name)));
-          } else if(manualBusy){
-            td.appendChild(el('div',{class:'cell-inner locked'}, 'Unavailable'));
-          } else {
-            td.appendChild(el('div',{class:'cell-inner free'}, 'Free'));
           }
+        }, d.customHours ? 'Use standard hours' : 'Custom hours...');
+        customBtn.disabled = !d.enabled;
+
+        const headerRow = el('div', { class: 'day-row' }, cb, el('span', { class: 'day-name' }, d.name), num, el('span', { class: 'unit' }, 'periods'), customBtn);
+        const wrap = el('div', { class: 'day-row-wrap' }, headerRow);
+
+        if (d.enabled && d.customHours) {
+          function dTimeField(labelText, val, onSet) {
+            const inp = el('input', { type: 'time', value: val });
+            inp.onchange = () => { onSet(inp.value); scheduleSave(); render(); };
+            return el('div', { class: 'field' }, el('label', {}, labelText), inp);
+          }
+          const cFields = el('div', { class: 'day-custom-fields' });
+          cFields.appendChild(dTimeField('Starts at', d.startTime, v => { d.startTime = v; }));
+          const lenInp = el('input', { type: 'number', min: '5', value: String(d.periodLength) });
+          lenInp.onchange = () => { d.periodLength = Math.max(5, parseInt(lenInp.value) || 45); scheduleSave(); render(); };
+          cFields.appendChild(el('div', { class: 'field' }, el('label', {}, 'Period length (min)'), lenInp));
+          cFields.appendChild(dTimeField('Lunch starts', d.lunchStart, v => { d.lunchStart = v; }));
+          cFields.appendChild(dTimeField('Lunch ends', d.lunchEnd, v => { d.lunchEnd = v; }));
+          wrap.appendChild(cFields);
         }
-        row.appendChild(td);
+        daysList.appendChild(wrap);
       });
-      table.appendChild(row);
+      p1.appendChild(daysList);
+      p1.appendChild(el('div', { class: 'hint' }, 'Uncheck a day to skip it entirely, lower its period count for a shorter day, or use "Custom hours" to give a day its own start time, period length and lunch window — e.g. a half-day Saturday that starts later or skips lunch.'));
+      main.appendChild(p1);
+
+      const p2 = el('div', { class: 'panel' });
+      p2.appendChild(el('h3', {}, 'Day structure'));
+      p2.appendChild(el('p', { class: 'hint', style: 'margin:-6px 0 14px;' }, "These are the defaults for every working day — override any of them for a specific day above with \"Custom hours\". Lunch is placed automatically wherever it chronologically falls once the day starts — a short day that ends before lunch simply won't show a lunch break."));
+      const fields = el('div', { class: 'struct-fields' });
+      function timeField(labelText, val, onSet) {
+        const inp = el('input', { type: 'time', value: val });
+        inp.onchange = () => { onSet(inp.value); scheduleSave(); render(); };
+        return el('div', { class: 'field' }, el('label', {}, labelText), inp);
+      }
+      fields.appendChild(timeField('School starts at', state.structure.startTime, v => state.structure.startTime = v));
+      const lenInp = el('input', { type: 'number', min: '5', value: String(state.structure.periodLength) });
+      lenInp.onchange = () => { state.structure.periodLength = Math.max(5, parseInt(lenInp.value) || 45); scheduleSave(); render(); };
+      fields.appendChild(el('div', { class: 'field' }, el('label', {}, 'Period length (minutes)'), lenInp));
+      fields.appendChild(timeField('Lunch starts at', state.structure.lunchStart, v => state.structure.lunchStart = v));
+      fields.appendChild(timeField('Lunch ends at', state.structure.lunchEnd, v => state.structure.lunchEnd = v));
+      p2.appendChild(fields);
+      main.appendChild(p2);
+
+      const p3 = el('div', { class: 'panel' });
+      p3.appendChild(el('h3', {}, 'Periods & breaks ', el('span', { class: 'count' }, `${totalClassCount()} class periods`)));
+      const list = el('div', { class: 'block-list' });
+      const s = state.structure;
+      const lunchStartMin = timeToMin(s.lunchStart), lunchEndMin = timeToMin(s.lunchEnd);
+      const lunchDur = Math.max(0, lunchEndMin - lunchStartMin);
+      let t = timeToMin(s.startTime);
+      let lunchShown = false;
+      s.template.forEach(b => {
+        if (!lunchShown && lunchDur > 0 && t >= lunchStartMin) {
+          list.appendChild(el('div', { class: 'lunch-preview-row' }, el('b', {}, 'Lunch'), `${minToTime(t)}–${minToTime(t + lunchDur)}`, el('span', { class: 'hint', style: 'margin-left:auto;' }, 'auto-placed from Day structure')));
+          t += lunchDur; lunchShown = true;
+        }
+        const dur = b.type === 'class' ? s.periodLength : (parseInt(b.duration) || 10);
+        const row = el('div', { class: 'block-row', draggable: 'true' });
+        row.ondragstart = (e) => { dragBlockId = b.id; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
+        row.ondragend = () => row.classList.remove('dragging');
+        row.ondragover = (e) => e.preventDefault();
+        row.ondrop = (e) => {
+          e.preventDefault();
+          if (!dragBlockId || dragBlockId === b.id) return;
+          const arr = state.structure.template;
+          const from = arr.findIndex(x => x.id === dragBlockId);
+          const to = arr.findIndex(x => x.id === b.id);
+          if (from < 0 || to < 0) return;
+          const [moved] = arr.splice(from, 1);
+          arr.splice(to, 0, moved);
+          scheduleSave(); render();
+        };
+        const nameInput = el('input', { type: 'text', value: b.label });
+        nameInput.oninput = () => { b.label = nameInput.value; scheduleSave(); };
+        row.appendChild(el('span', { class: 'handle' }, '⠿'));
+        row.appendChild(nameInput);
+        row.appendChild(el('span', { class: 'type-tag' + (b.type === 'break' ? ' break-tag' : '') }, b.type === 'class' ? 'Class' : 'Break'));
+        if (b.type === 'break') {
+          const durInput = el('input', { type: 'number', min: '5', value: String(b.duration || 10) });
+          durInput.oninput = () => { b.duration = Math.max(5, parseInt(durInput.value) || 10); scheduleSave(); render(); };
+          row.appendChild(durInput);
+          row.appendChild(el('span', { class: 'hint' }, 'min'));
+        }
+        row.appendChild(el('span', { class: 'time-preview' }, `${minToTime(t)}–${minToTime(t + dur)}`));
+        const upBtn = el('button', {
+          onclick: () => {
+            const arr = state.structure.template; const i = arr.findIndex(x => x.id === b.id);
+            if (i > 0) { [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; scheduleSave(); render(); }
+          }
+        }, '▲');
+        const downBtn = el('button', {
+          onclick: () => {
+            const arr = state.structure.template; const i = arr.findIndex(x => x.id === b.id);
+            if (i < arr.length - 1) { [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; scheduleSave(); render(); }
+          }
+        }, '▼');
+        row.appendChild(el('div', { class: 'order-btns' }, upBtn, downBtn));
+        row.appendChild(el('button', {
+          class: 'row-del', onclick: () => {
+            if (b.type === 'class' && classBlocksInOrder().length <= 1) { alert('You need at least one class period.'); return; }
+            state.structure.template = state.structure.template.filter(x => x.id !== b.id);
+            const newTotal = classBlocksInOrder().length;
+            state.structure.days.forEach(d => { d.periodCount = Math.min(d.periodCount, newTotal); });
+            scheduleSave(); render();
+          }
+        }, '✕'));
+        list.appendChild(row);
+        t += dur;
+      });
+      p3.appendChild(list);
+
+      const addRow = el('div', { class: 'field-row', style: 'margin-top:12px;' });
+      addRow.appendChild(el('button', {
+        class: 'add-row-btn', onclick: () => {
+          const oldTotal = classBlocksInOrder().length;
+          state.structure.template.push({ id: uid(), type: 'class', label: `Period ${oldTotal + 1}` });
+          const newTotal = oldTotal + 1;
+          state.structure.days.forEach(d => { if (d.enabled && d.periodCount >= oldTotal) d.periodCount = newTotal; });
+          scheduleSave(); render();
+        }
+      }, '+ Add class period'));
+      addRow.appendChild(el('button', {
+        class: 'add-row-btn', onclick: () => {
+          state.structure.template.push({ id: uid(), type: 'break', label: 'Break', duration: 15 });
+          scheduleSave(); render();
+        }
+      }, '+ Add break'));
+      p3.appendChild(addRow);
+      p3.appendChild(el('div', { class: 'hint' }, 'Drag a row (or use the arrows) to move it — times recalculate automatically based on period length and break duration.'));
+      main.appendChild(p3);
+
+      stepNav(main, null, 'teachers', 'Continue to teachers →');
+    }
+
+    /* ---- Step 2: Teachers ---- */
+    function renderTeachers(main) {
+      main.appendChild(el('div', { class: 'main-head' },
+        el('h1', {}, 'Teachers'),
+        el('p', {}, "Add every teacher who'll appear in any class's timetable. Mark any periods they're already known to be unavailable — a personal commitment, or (for single-class planning) a slot they're already teaching in a class you haven't entered here. Click squares to toggle busy/free.")
+      ));
+
+      if (state.teachers.length === 0) {
+        main.appendChild(el('div', { class: 'empty-state' }, 'No teachers yet. Add your first one below.'));
+      }
+
+      state.teachers.forEach(t => {
+        const panel = el('div', { class: 'panel' });
+        const head = el('div', { class: 'field-row', style: 'justify-content:space-between;' });
+        const nameInput = el('input', { type: 'text', value: t.name, placeholder: 'e.g. Ms. Rao', style: 'font-size:15px;font-weight:600;min-width:200px;' });
+        nameInput.oninput = () => { t.name = nameInput.value; scheduleSave(); };
+        const maxInp = el('input', { type: 'number', min: '0', value: t.maxPerDay || '', placeholder: '—', style: 'width:70px;' });
+        maxInp.oninput = () => { t.maxPerDay = maxInp.value; scheduleSave(); };
+        const right = el('div', { class: 'field-row', style: 'gap:8px;margin-bottom:0;' },
+          el('div', { class: 'field' }, el('label', {}, 'Max periods/day'), maxInp),
+          el('button', {
+            class: 'row-del', style: 'font-size:16px;', onclick: () => {
+              state.teachers = state.teachers.filter(x => x.id !== t.id);
+              state.classes.forEach(c => c.subjects.forEach(s => { if (s.teacherId === t.id) s.teacherId = ''; }));
+              scheduleSave(); render();
+            }
+          }, '✕')
+        );
+        head.appendChild(nameInput); head.appendChild(right);
+        panel.appendChild(head);
+
+        panel.appendChild(el('div', { class: 'hint', style: 'margin:10px 0 4px;' }, 'Mark periods this teacher is already unavailable (busy elsewhere, or personal). Click a square to toggle.'));
+
+        const totalBlocks = classBlocksInOrder();
+        const eDays = enabledDays();
+        const table = el('table', { class: 'busy-grid' });
+        const headRow = el('tr', {}, el('th', {}));
+        eDays.forEach(d => headRow.appendChild(el('th', {}, d.name)));
+        table.appendChild(headRow);
+        totalBlocks.forEach((blk, idx) => {
+          const row = el('tr', {});
+          row.appendChild(el('td', {}, el('div', { class: 'period-tag' }, `P${idx + 1}`)));
+          eDays.forEach(d => {
+            const applicable = idx < d.periodCount;
+            const td = el('td', {});
+            if (!applicable) {
+              td.appendChild(el('div', { class: 'busy-cell disabled' }));
+            } else {
+              t.busy = t.busy || {};
+              t.busy[d.name] = t.busy[d.name] || {};
+              const isBusy = !!t.busy[d.name][blk.id];
+              td.appendChild(el('div', {
+                class: 'busy-cell' + (isBusy ? ' busy' : ''), title: isBusy ? 'Busy — click to clear' : 'Free — click to mark busy', onclick: () => {
+                  if (t.busy[d.name][blk.id]) delete t.busy[d.name][blk.id];
+                  else t.busy[d.name][blk.id] = true;
+                  scheduleSave(); render();
+                }
+              }));
+            }
+            row.appendChild(td);
+          });
+          table.appendChild(row);
+        });
+        panel.appendChild(table);
+        main.appendChild(panel);
+      });
+
+      main.appendChild(el('button', {
+        class: 'add-row-btn', onclick: () => {
+          state.teachers.push({ id: uid(), name: '', maxPerDay: '', busy: {} });
+          scheduleSave(); render();
+        }
+      }, '+ Add teacher'));
+
+      stepNav(main, 'structure', 'classes', 'Continue to classes →');
+    }
+
+    /* ---- Step 3: Classes & subjects ---- */
+    function renderClasses(main) {
+      main.appendChild(el('div', { class: 'main-head' },
+        el('h1', {}, 'Classes & subjects'),
+        el('p', {}, "For each class, list its subjects, who teaches each one, how many periods a week it needs, and how many of those are 2-hour labs (two back-to-back periods). Leave room blank if you don't need to track rooms.")
+      ));
+
+      if (state.teachers.length === 0) {
+        main.appendChild(el('div', { class: 'error-box' }, el('b', {}, 'Add teachers first'), "You'll need at least one teacher before assigning subjects here."));
+      }
+
+      const availableCount = enabledDays().reduce((sum, d) => sum + Math.min(d.periodCount, totalClassCount()), 0);
+
+      state.classes.forEach(c => {
+        const panel = el('div', { class: 'panel' });
+        const head = el('div', { class: 'field-row', style: 'justify-content:space-between; margin-bottom:14px;' });
+        const nameInput = el('input', { type: 'text', value: c.name, placeholder: 'Class name, e.g. Grade 8 - A', style: 'font-size:15px;font-weight:600;min-width:240px;' });
+        nameInput.oninput = () => { c.name = nameInput.value; scheduleSave(); };
+        const delClass = el('button', {
+          class: 'secondary-btn', onclick: () => {
+            if (confirm(`Remove ${c.name || 'this class'} and all its subjects?`)) {
+              state.classes = state.classes.filter(x => x.id !== c.id);
+              scheduleSave(); render();
+            }
+          }
+        }, 'Remove class');
+        head.appendChild(nameInput); head.appendChild(delClass);
+        panel.appendChild(head);
+
+        const table = el('table', { class: 'editor' });
+        table.appendChild(el('tr', {}, el('th', {}, 'Subject'), el('th', {}, 'Teacher'), el('th', {}, 'Periods / week'), el('th', {}, '2-hr labs / week'), el('th', {}, 'Room (optional)'), el('th', {})));
+        c.subjects.forEach(s => {
+          const subjInput = el('input', { type: 'text', value: s.name, placeholder: 'e.g. Mathematics' });
+          subjInput.oninput = () => { s.name = subjInput.value; scheduleSave(); };
+          const teachSel = el('select', {});
+          teachSel.appendChild(el('option', { value: '' }, '— select —'));
+          state.teachers.forEach(t => teachSel.appendChild(el('option', { value: t.id }, t.name || '(unnamed)')));
+          teachSel.value = s.teacherId || '';
+          teachSel.onchange = () => { s.teacherId = teachSel.value; scheduleSave(); };
+          const perWeekInput = el('input', { type: 'number', value: s.periodsPerWeek, min: '0' });
+          perWeekInput.oninput = () => { s.periodsPerWeek = perWeekInput.value; scheduleSave(); };
+          const labInput = el('input', { type: 'number', value: s.labSessions || 0, min: '0', title: 'Number of double-period sessions per week. Each uses 2 of the periods/week.' });
+          labInput.oninput = () => { s.labSessions = labInput.value; scheduleSave(); };
+          const roomInput = el('input', { type: 'text', value: s.room || '', placeholder: 'e.g. Lab 2' });
+          roomInput.oninput = () => { s.room = roomInput.value; scheduleSave(); };
+          const del = el('button', {
+            class: 'row-del', onclick: () => {
+              c.subjects = c.subjects.filter(x => x.id !== s.id);
+              scheduleSave(); render();
+            }
+          }, '✕');
+          table.appendChild(el('tr', {}, el('td', {}, subjInput), el('td', {}, teachSel), el('td', {}, perWeekInput), el('td', {}, labInput), el('td', {}, roomInput), el('td', {}, del)));
+        });
+        panel.appendChild(table);
+
+        const usedCount = c.subjects.reduce((s, su) => s + (parseInt(su.periodsPerWeek) || 0), 0);
+        panel.appendChild(el('button', {
+          class: 'add-row-btn', onclick: () => {
+            c.subjects.push({ id: uid(), name: '', teacherId: '', periodsPerWeek: 1, labSessions: 0, room: '' });
+            scheduleSave(); render();
+          }
+        }, '+ Add subject'));
+        panel.appendChild(el('div', { class: 'hint' }, `${usedCount} of ${availableCount} weekly periods assigned` + (usedCount < availableCount ? ` — the rest will show as Free Period.` : usedCount > availableCount ? ` — that's ${usedCount - availableCount} too many for this class.` : '.')));
+        main.appendChild(panel);
+      });
+
+      main.appendChild(el('button', {
+        class: 'add-row-btn', onclick: () => {
+          state.classes.push({ id: uid(), name: '', subjects: [] });
+          scheduleSave(); render();
+        }
+      }, '+ Add class'));
+
+      if (state.classes.length === 0) {
+        main.appendChild(el('div', { class: 'empty-state', style: 'margin-top:14px;' }, 'No classes yet — add one above to start listing its subjects.'));
+      }
+
+      stepNav(main, 'teachers', 'generate', 'Continue to generate →');
+    }
+
+    /* ---- Step 4: Generate ---- */
+    function renderGenerate(main) {
+      main.appendChild(el('div', { class: 'main-head' },
+        el('h1', {}, 'Generate'),
+        el('p', {}, "Builds every class's timetable together, so teachers never overlap across classes.")
+      ));
+
+      const btnRow = el('div', { style: 'margin-bottom:20px;' });
+      const genBtn = el('button', {
+        class: 'primary-btn', onclick: () => {
+          genBtn.disabled = true; genBtn.textContent = 'Generating...';
+          setTimeout(() => {
+            const res = generateTimetable();
+            if (!res.success) {
+              state.result = { success: false, errors: res.errors };
+            } else {
+              state.result = { success: true, grid: res.grid, conflicts: res.conflicts, solvedCleanly: res.solvedCleanly, generatedAt: Date.now() };
+              state.resultTab = state.classes[0] ? state.classes[0].id : null;
+            }
+            scheduleSave(); render();
+          }, 30);
+        }
+      }, state.result && state.result.success ? 'Regenerate' : 'Generate timetables');
+      btnRow.appendChild(genBtn);
+      main.appendChild(btnRow);
+
+      if (!state.result) {
+        main.appendChild(el('div', { class: 'empty-state' }, 'Nothing generated yet. Click "Generate timetables" once your structure, teachers and classes are filled in.'));
+        stepNav(main, 'classes', null);
+        return;
+      }
+
+      if (!state.result.success) {
+        const box = el('div', { class: 'error-box' }, el('b', {}, "Couldn't generate — fix these first:"));
+        state.result.errors.forEach(e => box.appendChild(el('div', { style: 'margin-top:4px;' }, '• ' + e)));
+        main.appendChild(box);
+        stepNav(main, 'classes', null);
+        return;
+      }
+
+      if (state.result.conflicts.length) {
+        main.appendChild(el('div', { class: 'error-box' },
+          el('b', {}, `${state.result.conflicts.length} teacher clash${state.result.conflicts.length > 1 ? 'es' : ''} couldn't be avoided`),
+          "This usually means a teacher is needed in two places at once given the current periods/week and availability. Fix them from Class timetables, or reduce that teacher's load."
+        ));
+      } else {
+        main.appendChild(el('div', { class: 'panel' }, el('div', { style: 'color:var(--ink-dark);font-weight:600;' }, '✓ Generated with no clashes.')));
+      }
+
+      const nextRow = el('div', { class: 'field-row' });
+      nextRow.appendChild(el('button', { class: 'secondary-btn', onclick: () => { state.view = 'class-timetables'; render(); } }, 'View class timetables →'));
+      nextRow.appendChild(el('button', { class: 'secondary-btn', onclick: () => { state.view = 'teacher-timetables'; render(); } }, 'View teacher timetables →'));
+      main.appendChild(nextRow);
+
+      stepNav(main, 'classes', null);
+    }
+
+    /* ---- Step 5: Class timetables ---- */
+    function renderClassTimetables(main) {
+      main.appendChild(el('div', { class: 'main-head' }, el('h1', {}, 'Class timetables'), el('p', {}, "Each class's generated week. Click a cell to reassign it.")));
+      if (!state.result || !state.result.success) {
+        main.appendChild(el('div', { class: 'empty-state' }, 'Nothing to show yet — generate timetables first.'));
+        stepNav(main, 'generate', 'teacher-timetables');
+        return;
+      }
+      const tabbar = el('div', { class: 'tabbar' });
+      state.classes.forEach(c => {
+        const hasConflict = state.result.conflicts.some(cf => cf.classIds.includes(c.id));
+        tabbar.appendChild(el('div', { class: 'tab' + (state.resultTab === c.id ? ' active' : ''), onclick: () => { state.resultTab = c.id; render(); } }, c.name || '(unnamed)', hasConflict ? el('span', { class: 'warn-dot' }) : null));
+      });
+      main.appendChild(tabbar);
+      const cls = classById(state.resultTab) || state.classes[0];
+      if (cls) renderClassGrid(main, cls);
+      stepNav(main, 'generate', 'teacher-timetables', 'View teacher timetables →');
+    }
+
+    function renderClassGrid(main, cls) {
+      const days = enabledDays();
+      const rows = unionLayout();
+      const dayMaps = {};
+      days.forEach(d => dayMaps[d.name] = dayLayoutMapFor(d));
+
+      const toolbar = el('div', { class: 'grid-toolbar' });
+      toolbar.appendChild(el('h2', {}, cls.name || '(unnamed)'));
+      toolbar.appendChild(el('button', { class: 'secondary-btn', onclick: () => window.print() }, 'Print'));
+      main.appendChild(toolbar);
+
+      const table = el('table', { class: 'tt-grid' });
+      const headRow = el('tr', {}, el('th', { style: 'width:90px;' }, ''));
+      days.forEach(d => headRow.appendChild(el('th', {}, d.name)));
+      table.appendChild(headRow);
+
+      rows.forEach(rowDef => {
+        const row = el('tr', {});
+        row.appendChild(el('td', { class: 'period-label' }, el('b', {}, rowDef.label), `${rowDef.start}–${rowDef.end}`));
+        days.forEach(d => {
+          const dEntry = dayMaps[d.name][rowDef.id];
+          const td = el('td', { class: 'cell' });
+          if (!dEntry) {
+            td.appendChild(el('div', { class: 'cell-inner locked', style: 'color:var(--border);' }, '—'));
+          } else if (rowDef.type !== 'class') {
+            td.appendChild(el('div', { class: 'cell-inner break' }, rowDef.label));
+          } else {
+            const cellData = state.result.grid[cls.id][d.name][rowDef.id];
+            const conflict = state.result.conflicts.find(cf => cf.day === d.name && cf.periodId === rowDef.id && cf.classIds.includes(cls.id));
+            td.appendChild(renderEditableCell(cls, d.name, rowDef, cellData, conflict));
+          }
+          row.appendChild(td);
+        });
+        table.appendChild(row);
+      });
+      main.appendChild(table);
+
+      main.appendChild(el('div', { class: 'legend' },
+        el('span', {}, el('i', { style: 'background:var(--free)' }), 'Free period'),
+        el('span', {}, el('i', { style: 'background:#fff;border:1px solid var(--border)' }), 'Subject'),
+        el('span', {}, el('i', { style: 'background:var(--accent)' }), '2-hr lab (gold edge)'),
+        el('span', {}, el('i', { style: 'background:var(--warn-bg)' }), 'Teacher clash — click to fix'),
+        el('span', {}, el('i', { style: 'background:#F1EEE3' }), 'Break / Lunch')
+      ));
+    }
+
+    function renderEditableCell(cls, day, period, cellData, conflict) {
+      const wrap = el('div', {});
+      const isConflict = !!conflict || (cellData && cellData.forcedConflict);
+
+      function showView() {
+        wrap.innerHTML = '';
+        if (!cellData) {
+          wrap.appendChild(el('div', { class: 'cell-inner free', onclick: showEdit }, 'Free period'));
+          return;
+        }
+        const inner = el('div', { class: 'cell-inner' + (isConflict ? ' conflict' : '') + (cellData.isLab ? ' lab' : ''), onclick: showEdit },
+          el('div', { class: 'subj' }, cellData.subjectName),
+          cellData.teacherName ? el('div', { class: 'teach' }, cellData.teacherName) : null,
+          cellData.room ? el('div', { class: 'room' }, cellData.room) : null,
+          cellData.isLab ? el('div', { class: 'room' }, '2-hr lab') : null
+        );
+        if (isConflict) inner.appendChild(el('div', { class: 'conflict-flag' }, '⚠'));
+        wrap.appendChild(inner);
+      }
+
+      function showEdit() {
+        wrap.innerHTML = '';
+        const sel = el('select', { class: 'cell-edit' });
+        sel.appendChild(el('option', { value: '' }, 'Free period'));
+        cls.subjects.forEach(s => sel.appendChild(el('option', { value: s.id }, s.name || '(unnamed subject)')));
+        sel.value = cellData ? cellData.subjectId : '';
+        sel.onchange = () => {
+          // changing one half of a lab changes both halves
+          const targets = [period.id];
+          if (cellData && cellData.pairBlockId) targets.push(cellData.pairBlockId);
+          const s = sel.value ? cls.subjects.find(x => x.id === sel.value) : null;
+          targets.forEach(id => {
+            state.result.grid[cls.id][day][id] = s
+              ? { type: 'subject', subjectId: s.id, subjectName: s.name, teacherId: s.teacherId || null, teacherName: s.teacherId ? (teacherById(s.teacherId) || {}).name || '' : '', room: s.room || '' }
+              : null;
+          });
+          recomputeConflicts();
+          scheduleSave();
+          render();
+        };
+        sel.onblur = () => showView();
+        wrap.appendChild(sel);
+        sel.focus();
+      }
+
+      showView();
+      return wrap;
+    }
+
+    function recomputeConflicts() {
+      const days = enabledDays();
+      const totalBlocks = classBlocksInOrder();
+      const conflicts = [];
+      days.forEach(d => {
+        totalBlocks.forEach((blk, idx) => {
+          if (idx >= d.periodCount) return;
+          const byTeacher = {};
+          state.classes.forEach(c => {
+            const g = state.result.grid[c.id] && state.result.grid[c.id][d.name];
+            const cell = g ? g[blk.id] : null;
+            if (cell && cell.type === 'subject' && cell.teacherId) { byTeacher[cell.teacherId] = byTeacher[cell.teacherId] || []; byTeacher[cell.teacherId].push(c.id); }
+          });
+          Object.entries(byTeacher).forEach(([tId, cids]) => { if (cids.length > 1) conflicts.push({ day: d.name, periodId: blk.id, teacherId: tId, classIds: cids }); });
+        });
+      });
+      state.result.conflicts = conflicts;
+    }
+
+    /* ---- Step 6: Teacher timetables ---- */
+    function renderTeacherTimetables(main) {
+      main.appendChild(el('div', { class: 'main-head' }, el('h1', {}, 'Teacher timetables'), el('p', {}, "Every teacher's week across all classes.")));
+      if (!state.result || !state.result.success) {
+        main.appendChild(el('div', { class: 'empty-state' }, 'Nothing to show yet — generate timetables first.'));
+        stepNav(main, 'class-timetables', null);
+        return;
+      }
+      renderTeacherView(main);
+      stepNav(main, 'class-timetables', null);
+    }
+
+    function renderTeacherView(main) {
+      const days = enabledDays();
+      const rows = unionLayout();
+      const dayMaps = {};
+      days.forEach(d => dayMaps[d.name] = dayLayoutMapFor(d));
+
+      if (state.teachers.length === 0) {
+        main.appendChild(el('div', { class: 'empty-state' }, 'No teachers added yet.'));
+        return;
+      }
+      state.teachers.forEach(t => {
+        main.appendChild(el('h3', { style: 'margin:22px 0 10px;font-size:14.5px;' }, t.name || '(unnamed teacher)'));
+        const table = el('table', { class: 'tt-grid' });
+        const headRow = el('tr', {}, el('th', { style: 'width:90px;' }, ''));
+        days.forEach(d => headRow.appendChild(el('th', {}, d.name)));
+        table.appendChild(headRow);
+        rows.forEach(rowDef => {
+          const row = el('tr', {});
+          row.appendChild(el('td', { class: 'period-label' }, el('b', {}, rowDef.label), `${rowDef.start}–${rowDef.end}`));
+          days.forEach(d => {
+            const dEntry = dayMaps[d.name][rowDef.id];
+            const td = el('td', { class: 'cell' });
+            if (!dEntry) {
+              td.appendChild(el('div', { class: 'cell-inner locked', style: 'color:var(--border);' }, '—'));
+            } else if (rowDef.type !== 'class') {
+              td.appendChild(el('div', { class: 'cell-inner break' }, rowDef.label));
+            } else {
+              let found = null;
+              state.classes.forEach(c => {
+                const g = state.result.grid[c.id] && state.result.grid[c.id][d.name];
+                const cell = g ? g[rowDef.id] : null;
+                if (cell && cell.type === 'subject' && cell.teacherId === t.id) found = { cls: c, cell };
+              });
+              const manualBusy = t.busy && t.busy[d.name] && t.busy[d.name][rowDef.id];
+              const conflict = state.result.conflicts.find(cf => cf.day === d.name && cf.periodId === rowDef.id && cf.teacherId === t.id);
+              if (found) {
+                td.appendChild(el('div', { class: 'cell-inner' + (conflict ? ' conflict' : '') + (found.cell.isLab ? ' lab' : '') },
+                  el('div', { class: 'subj' }, found.cell.subjectName),
+                  el('div', { class: 'teach' }, found.cls.name),
+                  found.cell.isLab ? el('div', { class: 'room' }, '2-hr lab') : null));
+              } else if (manualBusy) {
+                td.appendChild(el('div', { class: 'cell-inner locked' }, 'Unavailable'));
+              } else {
+                td.appendChild(el('div', { class: 'cell-inner free' }, 'Free'));
+              }
+            }
+            row.appendChild(td);
+          });
+          table.appendChild(row);
+        });
+        main.appendChild(table);
+      });
+    }
+
+    /* ---------------------------------------------------------------------
+       Init
+    --------------------------------------------------------------------- */
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      if (!confirm('Clear all teachers, classes and generated timetables? This cannot be undone.')) return;
+      state = defaultState();
+      try { await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); } catch (e) { }
+      render();
     });
-    main.appendChild(table);
-  });
-}
 
-/* ---------------------------------------------------------------------
-   Init
---------------------------------------------------------------------- */
-document.getElementById('resetBtn').addEventListener('click', async ()=>{
-  if(!confirm('Clear all teachers, classes and generated timetables? This cannot be undone.')) return;
-  state = defaultState();
-  try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }catch(e){}
-  render();
-});
-
-loadState();
-</script>
+    loadState();
+  </script>
 </body>
+
 </html>
